@@ -1,0 +1,34 @@
+services:
+  # Web Service
+  - type: web
+    name: furnit-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: furnit-db
+          property: connectionString
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: SECRET_KEY
+        sync: false
+      - key: HIBERNATE_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
+      - key: HIBERNATE_SHOW_SQL
+        value: false
+      - key: HIBERNATE_FORMAT_SQL
+        value: false
+      - key: HIBERNATE_HBM2DDL_AUTO
+        value: update
+
+  # PostgreSQL Database
+  - type: postgres
+    name: furnit-db
+    plan: free
+    databaseName: furnitdb
+    user: furnit_user
