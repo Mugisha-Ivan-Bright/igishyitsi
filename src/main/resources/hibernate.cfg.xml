@@ -1,0 +1,25 @@
+<hibernate-configuration>
+    <session-factory>
+        <!-- Database connection -->
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/furnitdb</property>
+        <property name="hibernate.connection.username">postgres</property>
+        <property name="hibernate.connection.password">shami</property>
+
+        <!-- SQL Dialect -->
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+
+        <!-- Auto-create/update tables -->
+        <property name="hibernate.hbm2ddl.auto">update</property>
+
+        <!-- Show SQL -->
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Annotated classes -->
+        <mapping class="org.example.esubmission.model.User"/>
+        <mapping class="org.example.esubmission.model.Assignment"/>
+        <mapping class="org.example.esubmission.model.Submission"/>
+        <mapping class="org.example.esubmission.model.StudentClass"/>
+    </session-factory>
+</hibernate-configuration>
