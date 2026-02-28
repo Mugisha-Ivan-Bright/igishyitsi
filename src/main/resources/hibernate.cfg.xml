@@ -21,5 +21,7 @@
         <mapping class="org.example.esubmission.model.Assignment"/>
         <mapping class="org.example.esubmission.model.Submission"/>
         <mapping class="org.example.esubmission.model.StudentClass"/>
+        <mapping class="org.example.esubmission.model.Subject"/>
+        <mapping class="org.example.esubmission.model.Announcement"/>
     </session-factory>
 </hibernate-configuration>

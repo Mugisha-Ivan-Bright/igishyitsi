@@ -171,12 +171,18 @@ public class SubmitAssignmentServlet extends HttpServlet {
                 }
             }
 
+            // Optional: Google Form response URL  
+            String formResponseUrl = request.getParameter("formResponseUrl");
+
             // Create submission
             Submission submission = new Submission();
             submission.setAssignment(assignment);
             submission.setStudent(student);
             submission.setContent(content);
             submission.setFileUrl(fileUrl);
+            if (formResponseUrl != null && !formResponseUrl.trim().isEmpty()) {
+                submission.setFormResponseUrl(formResponseUrl.trim());
+            }
 
             submissionDAO.save(submission);
 

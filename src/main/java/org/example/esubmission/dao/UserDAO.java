@@ -93,20 +93,34 @@ public class UserDAO {
         try {
             session = HibernateUtil.getSessionFactory().openSession();
             tx = session.beginTransaction();
-            session.merge(user);
+            User saved = session.merge(user);
             tx.commit();
-            return user;
-        }
-
-        catch(Exception ex) {
-            if(tx != null && tx.getStatus().canRollback()) { tx.rollback();}
+            return saved;
+        } catch (Exception ex) {
+            if (tx != null && tx.getStatus().canRollback()) {
+                tx.rollback();
+            }
             ex.printStackTrace();
             throw new RuntimeException("Failed to save user", ex);
-        }
-        finally {
-            if(session != null && session.isOpen()) {
+        } finally {
+            if (session != null && session.isOpen()) {
                 session.close();
             }
+        }
+    }
+
+     public void delete(long id) {
+        Transaction tx = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            User user = session.get(User.class, id);
+            if (user != null) {
+                session.remove(user);
+            }
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            throw new RuntimeException("Failed to delete user", e);
         }
     }
 }

@@ -152,8 +152,19 @@ public class User {
      *
      * @return the encrypted password
      */
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getPassword() {
         return password;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public String getResetToken() {
+        return resetToken;
     }
 
     /**
@@ -225,9 +236,7 @@ public class User {
         this.twoFactorEnabled = twoFactorEnabled;
     }
 
-    public String getVerificationCode() {
-        return verificationCode;
-    }
+
 
     public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
@@ -241,9 +250,6 @@ public class User {
         this.verificationExpiry = verificationExpiry;
     }
 
-    public String getResetToken() {
-        return resetToken;
-    }
 
     public void setResetToken(String resetToken) {
         this.resetToken = resetToken;

@@ -12,11 +12,16 @@ import org.example.esubmission.model.Assignment;
 import org.example.esubmission.model.StudentClass;
 import org.example.esubmission.model.User;
 import org.example.esubmission.service.AssignmentService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Servlet responsible for rendering the teacher dashboard.
@@ -97,6 +102,30 @@ public class TeachersDash extends HttpServlet {
             List<StudentClass> enrollments = studentClassDAO.findEnrollmentsByTeacher(teacher.getId());
             req.setAttribute("enrollments", enrollments);
 
+            // Get recent submissions for activity feed
+            List<org.example.esubmission.model.Submission> recentSubmissions = new SubmissionDAO().findAll(); // Or filter by teacher's assignments
+            // In a real app we'd filter or join, but for now we'll take all to show activity
+            req.setAttribute("recentSubmissions", recentSubmissions);
+
+            // Serialize all data to JSON for frontend
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            
+            Map<String, Object> realData = new HashMap<>();
+            realData.put("currentUser", teacher);
+            realData.put("assignments", assignments);
+            realData.put("classes", classes);
+            realData.put("enrollments", enrollments);
+            realData.put("recentSubmissions", recentSubmissions);
+            realData.put("stats", Map.of(
+                "studentCount", studentCount,
+                "assignmentCount", assignmentCount,
+                "submissionCount", submissionCount
+            ));
+            
+            String realDataJson = mapper.writeValueAsString(realData);
+            req.setAttribute("realData", realDataJson);
+
             req.getRequestDispatcher("/WEB-INF/pages/teacherDash.jsp").forward(req, resp);
         } catch (Exception e) {
             e.printStackTrace();
@@ -124,13 +153,23 @@ public class TeachersDash extends HttpServlet {
             String description = req.getParameter("description");
             String className = req.getParameter("className");
             String deadlineStr = req.getParameter("deadline");
+            String googleFormUrl = req.getParameter("googleFormUrl");
+            String pointsStr = req.getParameter("points");
 
             try {
-                LocalDateTime deadline = LocalDateTime.parse(deadlineStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                assignmentService.createAssignment(teacher, title, description, className, deadline);
+                Integer points = (pointsStr != null && !pointsStr.isEmpty()) ? Integer.parseInt(pointsStr) : 100;
+                LocalDateTime deadline;
+                // Accept both date (yyyy-MM-dd) and datetime-local (yyyy-MM-ddTHH:mm)
+                if (deadlineStr.contains("T")) {
+                    deadline = LocalDateTime.parse(deadlineStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                } else {
+                    deadline = java.time.LocalDate.parse(deadlineStr).atTime(23, 59);
+                }
+                assignmentService.createAssignment(teacher, title, description, className, deadline, googleFormUrl, points);
                 resp.sendRedirect(req.getContextPath() + "/teacher/dashboard");
             } catch (Exception e) {
-                req.setAttribute("error", "Failed to create assignment");
+                e.printStackTrace();
+                req.setAttribute("error", "Failed to create assignment: " + e.getMessage());
                 doGet(req, resp);
             }
         }

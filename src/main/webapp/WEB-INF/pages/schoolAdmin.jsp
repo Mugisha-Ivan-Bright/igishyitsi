@@ -71,10 +71,9 @@
                             <span class="submenu-arrow">›</span>
                         </a>
                         <ul class="submenu" id="user-management">
+                            <li><a href="#" onclick="navigateTo(event, 'all-users')">All Users</a></li>
                             <li><a href="#" onclick="navigateTo(event, 'students')">Students</a></li>
                             <li><a href="#" onclick="navigateTo(event, 'teachers')">Teachers</a></li>
-                            <li><a href="#" onclick="navigateTo(event, 'parents')">Parents</a></li>
-                            <li><a href="#" onclick="navigateTo(event, 'staff')">Staff</a></li>
                         </ul>
                     </li>
 
@@ -181,28 +180,28 @@
                         <div class="stat-content">
                             <div class="stat-label">Total Students</div>
                             <div class="stat-value" id="totalStudents">${stats.students}</div>
-                            <div class="stat-change positive">↑ 12% from last year</div>
+                            <div class="stat-change positive">Active records</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-content">
                             <div class="stat-label">Total Teachers</div>
-                            <div class="stat-value" id="totalTeachers">${stat.teachers}</div>
-                            <div class="stat-change positive">↑ 5% from last year</div>
+                            <div class="stat-value" id="totalTeachers">${stats.teachers}</div>
+                            <div class="stat-change positive">Active Teachers</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-content">
                             <div class="stat-label">Classes</div>
-                            <div class="stat-value" id="totalClasses">42</div>
-                            <div class="stat-change">Across 12 grades</div>
+                            <div class="stat-value" id="totalClasses">${stats.classes}</div>
+                            <div class="stat-change">Active sections</div>
                         </div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-content">
-                            <div class="stat-label">Attendance Today</div>
-                            <div class="stat-value" id="attendanceToday">94%</div>
-                            <div class="stat-change positive">↑ 2% from yesterday</div>
+                            <div class="stat-label">Subjects</div>
+                            <div class="stat-value" id="totalSubjects">${stats.subjects}</div>
+                            <div class="stat-change positive">Curriculum modules</div>
                         </div>
                     </div>
                 </div>
@@ -241,19 +240,19 @@
                 <div class="stats-grid">
                     <div class="stat-card" onclick="filterBy('students', 'all')">
                         <div class="stat-label">Total Students</div>
-                        <div class="stat-value">1,247</div>
+                        <div class="stat-value" id="stats-total-students">...</div>
                     </div>
                     <div class="stat-card" onclick="filterBy('students', 'active')">
                         <div class="stat-label">Active</div>
-                        <div class="stat-value">1,189</div>
+                        <div class="stat-value" id="stats-active-students">...</div>
                     </div>
                     <div class="stat-card" onclick="filterBy('students', 'new')">
                         <div class="stat-label">New This Year</div>
-                        <div class="stat-value">156</div>
+                        <div class="stat-value" id="stats-new-students">...</div>
                     </div>
                     <div class="stat-card" onclick="filterBy('students', 'inactive')">
                         <div class="stat-label">Inactive</div>
-                        <div class="stat-value">58</div>
+                        <div class="stat-value" id="stats-inactive-students">...</div>
                     </div>
                 </div>
 
@@ -298,7 +297,7 @@
                 <header class="header">
                     <div class="header-title">
                         <h2>Teachers Management</h2>
-                        <p class="header-subtitle">Manage teaching staff and assignments</p>
+                        <p class="header-subtitle">Manage faculty members and assignments</p>
                     </div>
                     <div class="header-actions">
                         <button class="btn btn-secondary" onclick="exportData('teachers')">📥 Export</button>
@@ -309,19 +308,19 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-label">Total Teachers</div>
-                        <div class="stat-value">87</div>
+                        <div class="stat-value" id="stats-total-teachers">...</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Full-Time</div>
-                        <div class="stat-value">72</div>
+                        <div class="stat-value" id="stats-full-teachers">...</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Part-Time</div>
-                        <div class="stat-value">15</div>
+                        <div class="stat-value" id="stats-part-teachers">...</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Avg. Experience</div>
-                        <div class="stat-value">8.5 yrs</div>
+                        <div class="stat-value" id="stats-avg-exp">...</div>
                     </div>
                 </div>
 
@@ -356,61 +355,27 @@
                 </div>
             </div>
 
-            <!-- Parents Section -->
-            <div id="parents" class="content-section">
+            <!-- All Users Section -->
+            <div id="all-users" class="content-section">
                 <header class="header">
                     <div class="header-title">
-                        <h2>Parents Management</h2>
-                        <p class="header-subtitle">Manage parent accounts and student relationships</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary" onclick="exportData('parents')">📥 Export</button>
-                        <button class="btn btn-primary" onclick="showAddModal('parent')">➕ Add Parent</button>
+                        <h2>User Management</h2>
+                        <p class="header-subtitle">Manage all system users and allocate roles</p>
                     </div>
                 </header>
 
                 <div class="table-container">
-                    <table id="parentsTable">
+                    <table id="allUsersTable">
                         <thead>
                             <tr>
-                                <th>Parent Name</th>
-                                <th>Student(s)</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="parentsTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Staff Section -->
-            <div id="staff" class="content-section">
-                <header class="header">
-                    <div class="header-title">
-                        <h2>Staff Management</h2>
-                        <p class="header-subtitle">Manage non-teaching staff members</p>
-                    </div>
-                    <div class="header-actions">
-                        <button class="btn btn-secondary" onclick="exportData('staff')">📥 Export</button>
-                        <button class="btn btn-primary" onclick="showAddModal('staff')">➕ Add Staff</button>
-                    </div>
-                </header>
-
-                <div class="table-container">
-                    <table id="staffTable">
-                        <thead>
-                            <tr>
-                                <th>Staff ID</th>
                                 <th>Name</th>
-                                <th>Role</th>
-                                <th>Department</th>
                                 <th>Email</th>
+                                <th>Phone</th>
+                                <th>Current Role</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="staffTableBody"></tbody>
+                        <tbody id="allUsersTableBody"></tbody>
                     </table>
                 </div>
             </div>
@@ -896,9 +861,22 @@
         </main>
 
         <script src="${pageContext.request.contextPath}/js/toast.js"></script>
-        <script src="${pageContext.request.contextPath}/js/schoolAdmin.js"></script>
+
+        <script id="server-data" type="application/json">
+            ${realData != null && realData != '' ? realData : "{}"}
+        </script>
         <script>
             const contextPath = "${pageContext.request.contextPath}";
+            try {
+                window.serverData = JSON.parse(document.getElementById('server-data').textContent);
+            } catch (e) {
+                window.serverData = {};
+                console.error("Failed to parse serverData", e);
+            }
+        </script>
+
+        <script src="${pageContext.request.contextPath}/js/schoolAdmin.js"></script>
+        <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const errorMsg = "${error}";
                 if (errorMsg && errorMsg.trim() !== "" && errorMsg !== "null") {

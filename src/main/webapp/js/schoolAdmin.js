@@ -2,252 +2,26 @@
 console.log('School Admin Dashboard loaded successfully!');
 
 // Global State with Extensive Dummy Data
+// Global State - Initialized from server if available, else fallback to dummy
 const schoolState = {
-    currentUser: { name: 'Admin User', role: 'Super Admin', avatar: 'AD' },
+    currentUser: window.serverData?.currentUser || { name: 'Admin User', role: 'Super Admin', avatar: 'AD' },
 
-    students: generateStudents(100),
-    teachers: generateTeachers(50),
-    parents: generateParents(80),
-    staff: generateStaff(20),
-    classes: generateClasses(42),
-    subjects: generateSubjects(25),
-    assignments: generateAssignments(50),
-    enrollments: generateEnrollments(100),
-    attendance: generateAttendance(100),
-    exams: generateExams(30),
-    results: generateResults(200),
-    announcements: generateAnnouncements(15),
-    events: generateEvents(30),
-    fees: generateFees(100),
-    roles: generateRoles(),
-    backups: generateBackups(10),
-    logs: generateLogs(50)
+    users: window.serverData?.users || [],
+    students: window.serverData?.students || [],
+    teachers: window.serverData?.teachers || [],
+    classes: window.serverData?.classes || [],
+    subjects: window.serverData?.subjects || [],
+    assignments: window.serverData?.assignments || [],
+    enrollments: window.serverData?.enrollments || [],
+    logs: window.serverData?.logs || [],
+    events: [],
+    announcements: window.serverData?.announcements || []
 };
 
 // Data Generation Functions
-function generateStudents(count) {
-    const firstNames = ['Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Ethan', 'Sophia', 'Mason', 'Isabella', 'William', 'Mia', 'James', 'Charlotte', 'Benjamin', 'Amelia', 'Lucas', 'Harper', 'Henry', 'Evelyn', 'Alexander'];
-    const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas', 'Taylor', 'Moore', 'Jackson', 'Martin'];
-    const classes = ['Grade 1-A', 'Grade 1-B', 'Grade 2-A', 'Grade 2-B', 'Grade 3-A', 'Grade 3-B', 'Grade 4-A', 'Grade 4-B', 'Grade 5-A', 'Grade 5-B'];
-    const statuses = ['Active', 'Active', 'Active', 'Active', 'Inactive'];
+// Data generation functions removed as we are now using real data.
 
-    return Array.from({ length: count }, (_, i) => ({
-        id: `STU${String(i + 1).padStart(4, '0')}`,
-        name: `${firstNames[i % firstNames.length]} ${lastNames[Math.floor(i / firstNames.length) % lastNames.length]}`,
-        class: classes[i % classes.length],
-        email: `student${i + 1}@connet.edu`,
-        status: statuses[i % statuses.length],
-        joinDate: `2023-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`
-    }));
-}
-
-function generateTeachers(count) {
-    const names = ['Dr. Sarah Williams', 'Prof. Michael Chen', 'Ms. Emily Davis', 'Mr. Robert Taylor', 'Dr. Lisa Anderson', 'Prof. David Brown', 'Ms. Jennifer Wilson', 'Mr. James Moore'];
-    const departments = ['Science', 'Mathematics', 'English', 'History', 'Arts', 'Physical Education'];
-    const subjects = ['Physics', 'Chemistry', 'Biology', 'Algebra', 'Geometry', 'Literature', 'Grammar', 'World History', 'Music', 'PE'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `TCH${String(i + 1).padStart(3, '0')}`,
-        name: names[i % names.length] + (i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''),
-        department: departments[i % departments.length],
-        subjects: [subjects[i % subjects.length], subjects[(i + 1) % subjects.length]].join(', '),
-        email: `teacher${i + 1}@connet.edu`,
-        experience: Math.floor(Math.random() * 15) + 1
-    }));
-}
-
-function generateParents(count) {
-    const names = ['John Smith', 'Mary Johnson', 'Robert Williams', 'Patricia Brown', 'Michael Jones', 'Linda Garcia', 'William Miller', 'Elizabeth Davis'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `PAR${String(i + 1).padStart(3, '0')}`,
-        name: names[i % names.length] + (i >= names.length ? ` ${Math.floor(i / names.length) + 1}` : ''),
-        students: [`STU${String(i + 1).padStart(4, '0')}`],
-        phone: `+1 ${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 900) + 100}-${Math.floor(Math.random() * 9000) + 1000}`,
-        email: `parent${i + 1}@email.com`
-    }));
-}
-
-function generateStaff(count) {
-    const names = ['Alice Cooper', 'Bob Martin', 'Carol White', 'Dan Lee', 'Eve Harris', 'Frank Clark', 'Grace Lewis', 'Henry Walker'];
-    const roles = ['Librarian', 'Lab Assistant', 'Counselor', 'Admin Staff', 'IT Support', 'Nurse'];
-    const departments = ['Library', 'Science Lab', 'Counseling', 'Administration', 'IT', 'Health'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `STF${String(i + 1).padStart(3, '0')}`,
-        name: names[i % names.length],
-        role: roles[i % roles.length],
-        department: departments[i % departments.length],
-        email: `staff${i + 1}@connet.edu`
-    }));
-}
-
-function generateClasses(count) {
-    const grades = ['Grade 1', 'Grade 2', 'Grade 3', 'Grade 4', 'Grade 5', 'Grade 6', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
-    const sections = ['A', 'B', 'C', 'D'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `CLS${String(i + 1).padStart(3, '0')}`,
-        name: `${grades[Math.floor(i / sections.length)]} - ${sections[i % sections.length]}`,
-        teacher: `TCH${String((i % 20) + 1).padStart(3, '0')}`,
-        students: Math.floor(Math.random() * 15) + 20,
-        capacity: 35
-    }));
-}
-
-function generateSubjects(count) {
-    const subjects = [
-        { code: 'MAT101', name: 'Mathematics I', dept: 'Mathematics', credits: 4 },
-        { code: 'ENG101', name: 'English Literature', dept: 'English', credits: 3 },
-        { code: 'SCI101', name: 'General Science', dept: 'Science', credits: 4 },
-        { code: 'HIS101', name: 'World History', dept: 'History', credits: 3 },
-        { code: 'ART101', name: 'Visual Arts', dept: 'Arts', credits: 2 },
-        { code: 'PE101', name: 'Physical Education', dept: 'PE', credits: 2 },
-        { code: 'MAT201', name: 'Algebra', dept: 'Mathematics', credits: 4 },
-        { code: 'PHY101', name: 'Physics', dept: 'Science', credits: 4 },
-        { code: 'CHE101', name: 'Chemistry', dept: 'Science', credits: 4 },
-        { code: 'BIO101', name: 'Biology', dept: 'Science', credits: 4 }
-    ];
-
-    return subjects.slice(0, count);
-}
-
-function generateAssignments(count) {
-    return Array.from({ length: count }, (_, i) => ({
-        id: `ASN${String(i + 1).padStart(3, '0')}`,
-        teacher: `TCH${String((i % 20) + 1).padStart(3, '0')}`,
-        subject: `MAT${(i % 3) + 1}01`,
-        class: `CLS${String((i % 42) + 1).padStart(3, '0')}`,
-        schedule: ['Mon/Wed 9:00 AM', 'Tue/Thu 10:00 AM', 'Mon/Wed/Fri 11:00 AM'][i % 3]
-    }));
-}
-
-function generateEnrollments(count) {
-    return Array.from({ length: count }, (_, i) => ({
-        id: `ENR${String(i + 1).padStart(4, '0')}`,
-        student: `STU${String(i + 1).padStart(4, '0')}`,
-        class: `CLS${String((i % 42) + 1).padStart(3, '0')}`,
-        subjects: ['MAT101', 'ENG101', 'SCI101'].join(', '),
-        enrollDate: `2023-09-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`
-    }));
-}
-
-function generateAttendance(count) {
-    const statuses = ['Present', 'Present', 'Present', 'Present', 'Absent', 'Late'];
-    const today = new Date().toISOString().split('T')[0];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `ATT${String(i + 1).padStart(4, '0')}`,
-        student: `STU${String(i + 1).padStart(4, '0')}`,
-        class: `CLS${String((i % 42) + 1).padStart(3, '0')}`,
-        status: statuses[i % statuses.length],
-        time: `${Math.floor(Math.random() * 3) + 7}:${String(Math.floor(Math.random() * 60)).padStart(2, '0')} AM`,
-        date: today
-    }));
-}
-
-function generateExams(count) {
-    const subjects = ['Mathematics', 'English', 'Science', 'History', 'Physics', 'Chemistry'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `EXM${String(i + 1).padStart(3, '0')}`,
-        name: `${['Mid-term', 'Final', 'Quiz', 'Unit Test'][i % 4]} - ${subjects[i % subjects.length]}`,
-        subject: subjects[i % subjects.length],
-        class: `CLS${String((i % 42) + 1).padStart(3, '0')}`,
-        date: `2024-${String(Math.floor(Math.random() * 6) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-        duration: `${[60, 90, 120, 180][i % 4]} min`
-    }));
-}
-
-function generateResults(count) {
-    const grades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `RES${String(i + 1).padStart(4, '0')}`,
-        student: `STU${String((i % 100) + 1).padStart(4, '0')}`,
-        exam: `EXM${String((i % 30) + 1).padStart(3, '0')}`,
-        subject: ['Mathematics', 'English', 'Science'][i % 3],
-        marks: Math.floor(Math.random() * 40) + 60,
-        grade: grades[Math.floor(Math.random() * grades.length)]
-    }));
-}
-
-function generateAnnouncements(count) {
-    const titles = ['School Holiday Notice', 'Parent-Teacher Meeting', 'Sports Day Event', 'Exam Schedule Released', 'New Library Books', 'Science Fair Registration'];
-    const contents = [
-        'School will be closed for winter break from Dec 20 to Jan 5.',
-        'Parent-teacher meetings scheduled for next week. Please check your email for appointment times.',
-        'Annual sports day will be held on March 15. All students are encouraged to participate.',
-        'Mid-term exam schedule has been released. Please check the school portal.',
-        'New collection of books added to the library. Visit during lunch hours.',
-        'Science fair registration is now open. Submit your project proposals by Feb 28.'
-    ];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `ANN${String(i + 1).padStart(3, '0')}`,
-        title: titles[i % titles.length],
-        content: contents[i % contents.length],
-        date: `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-        author: 'Admin'
-    }));
-}
-
-function generateEvents(count) {
-    const events = ['School Assembly', 'Sports Practice', 'Club Meeting', 'Parent Meeting', 'Exam', 'Holiday', 'Workshop', 'Field Trip'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `EVT${String(i + 1).padStart(3, '0')}`,
-        title: events[i % events.length],
-        date: `2024-${String(Math.floor(Math.random() * 12) + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 28) + 1).padStart(2, '0')}`,
-        type: ['academic', 'sports', 'cultural', 'holiday'][i % 4]
-    }));
-}
-
-function generateFees(count) {
-    const statuses = ['Paid', 'Paid', 'Paid', 'Pending', 'Overdue'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `FEE${String(i + 1).padStart(4, '0')}`,
-        student: `STU${String(i + 1).padStart(4, '0')}`,
-        class: `CLS${String((i % 42) + 1).padStart(3, '0')}`,
-        totalFee: 5000,
-        paid: statuses[i % statuses.length] === 'Paid' ? 5000 : (statuses[i % statuses.length] === 'Pending' ? Math.floor(Math.random() * 3000) : 0),
-        pending: statuses[i % statuses.length] === 'Paid' ? 0 : (statuses[i % statuses.length] === 'Pending' ? 5000 - Math.floor(Math.random() * 3000) : 5000),
-        status: statuses[i % statuses.length]
-    }));
-}
-
-function generateRoles() {
-    return [
-        { id: 'ROL001', name: 'Super Admin', permissions: 'All' },
-        { id: 'ROL002', name: 'Principal', permissions: 'View All, Manage Staff, Manage Students' },
-        { id: 'ROL003', name: 'Teacher', permissions: 'View Students, Manage Grades, Mark Attendance' },
-        { id: 'ROL004', name: 'Accountant', permissions: 'Manage Fees, View Reports' },
-        { id: 'ROL005', name: 'Librarian', permissions: 'Manage Library' }
-    ];
-}
-
-function generateBackups(count) {
-    return Array.from({ length: count }, (_, i) => ({
-        id: `BCK${String(i + 1).padStart(3, '0')}`,
-        name: `Backup_${new Date(Date.now() - i * 86400000).toISOString().split('T')[0]}`,
-        date: new Date(Date.now() - i * 86400000).toISOString().split('T')[0],
-        size: `${Math.floor(Math.random() * 500) + 100} MB`
-    }));
-}
-
-function generateLogs(count) {
-    const actions = ['User Login', 'Student Added', 'Grade Updated', 'Attendance Marked', 'Fee Payment Received', 'Announcement Posted'];
-
-    return Array.from({ length: count }, (_, i) => ({
-        id: `LOG${String(i + 1).padStart(4, '0')}`,
-        action: actions[i % actions.length],
-        user: 'Admin User',
-        time: new Date(Date.now() - i * 3600000).toLocaleString(),
-        details: 'Action completed successfully'
-    }));
-}
-
+// Navigation Functions
 // Navigation Functions
 function navigateTo(event, sectionId) {
     if (event) event.preventDefault();
@@ -274,6 +48,40 @@ function navigateTo(event, sectionId) {
     if (window.innerWidth <= 768) toggleSidebar();
 }
 
+function loadDashboard() {
+    const feed = document.getElementById('activityFeed');
+    if (feed) {
+        if (schoolState.logs && schoolState.logs.length > 0) {
+            feed.innerHTML = schoolState.logs.map(log => `
+                <div class="activity-item">
+                    <div class="activity-icon">📝</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>${log.user}</strong>: ${log.details}</div>
+                        <div class="activity-time">${log.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            feed.innerHTML = '<div class="no-data">No recent activity found.</div>';
+        }
+    }
+    updateStats();
+}
+
+function updateStats() {
+    const stats = window.serverData?.stats || {};
+
+    if (document.getElementById('stats-total-students')) {
+        document.getElementById('stats-total-students').textContent = (stats.students || 0).toLocaleString();
+        document.getElementById('stats-active-students').textContent = (stats.students || 0).toLocaleString(); // Simplified
+    }
+
+    if (document.getElementById('stats-total-teachers')) {
+        document.getElementById('stats-total-teachers').textContent = (stats.teachers || 0).toLocaleString();
+        document.getElementById('stats-full-teachers').textContent = (stats.teachers || 0).toLocaleString(); // Simplified
+    }
+}
+
 function toggleSubmenu(event, submenuId) {
     event.preventDefault();
     const submenu = document.getElementById(submenuId);
@@ -291,10 +99,9 @@ function toggleSidebar() {
 function loadSectionData(sectionId) {
     switch (sectionId) {
         case 'dashboard': loadDashboard(); break;
+        case 'all-users': loadAllUsers(); break;
         case 'students': loadStudents(); break;
         case 'teachers': loadTeachers(); break;
-        case 'parents': loadParents(); break;
-        case 'staff': loadStaff(); break;
         case 'classes': loadClasses(); break;
         case 'subjects': loadSubjects(); break;
         case 'assignments': loadAssignmentsTable(); break;
@@ -312,28 +119,51 @@ function loadSectionData(sectionId) {
 }
 
 // Load Functions
-function loadDashboard() {
-    const feed = document.getElementById('activityFeed');
-    if (feed) {
-        feed.innerHTML = schoolState.logs.slice(0, 6).map(log => `
-            <div class="activity-item">
-                <div class="activity-icon">📝</div>
-                <div class="activity-content">
-                    <div class="activity-text">${log.action}</div>
-                    <div class="activity-time">${log.time}</div>
-                </div>
-            </div>
-        `).join('');
+function loadAllUsers() {
+    const tbody = document.getElementById('allUsersTableBody');
+    if (!tbody) return;
+
+    if (schoolState.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No users found in database.</td></tr>';
+        return;
     }
 
-    const events = document.getElementById('upcomingEvents');
-    if (events) {
-        events.innerHTML = schoolState.events.slice(0, 5).map(event => `
-            <div class="event-item">
-                <div class="event-title">${event.title}</div>
-                <div class="event-date">${event.date}</div>
-            </div>
-        `).join('');
+    tbody.innerHTML = schoolState.users.map(user => `
+        <tr>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td>${user.phone || 'N/A'}</td>
+            <td><span class="badge badge-info">${user.role}</span></td>
+            <td>
+                <select onchange="updateUserRole(${user.id}, this.value)" class="role-selector">
+                    <option value="STUDENT" ${user.role === 'STUDENT' ? 'selected' : ''}>Student</option>
+                    <option value="TEACHER" ${user.role === 'TEACHER' ? 'selected' : ''}>Teacher</option>
+                    <option value="ADMIN" ${user.role === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                </select>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function updateUserRole(userId, newRole) {
+    try {
+        const response = await fetch(`${contextPath}/admin/api?action=updateRole`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `userId=${userId}&role=${newRole}`
+        });
+        const result = await response.json();
+        if (result.success) {
+            showToast('User role updated successfully!', 'success');
+            // Update local state and refresh
+            const user = schoolState.users.find(u => u.id == userId);
+            if (user) user.role = newRole;
+            loadAllUsers();
+        } else {
+            showToast(result.message || 'Error updating role', 'error');
+        }
+    } catch (e) {
+        showToast('Error connecting to server', 'error');
     }
 }
 
@@ -341,13 +171,18 @@ function loadStudents() {
     const tbody = document.getElementById('studentsTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = schoolState.students.slice(0, 50).map(student => `
+    if (schoolState.students.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No students found in database.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = schoolState.students.map(student => `
         <tr>
-            <td>${student.id}</td>
+            <td>STU${String(student.id).padStart(4, '0')}</td>
             <td>${student.name}</td>
-            <td>${student.class}</td>
+            <td>${student.class || 'Unassigned'}</td>
             <td>${student.email}</td>
-            <td><span class="badge badge-${student.status.toLowerCase()}">${student.status}</span></td>
+            <td><span class="badge badge-${(student.status || 'Active').toLowerCase()}">${student.status || 'Active'}</span></td>
             <td>
                 <div class="table-actions">
                     <button class="action-btn" onclick="viewItem('student', '${student.id}')">View</button>
@@ -363,12 +198,17 @@ function loadTeachers() {
     const tbody = document.getElementById('teachersTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = schoolState.teachers.slice(0, 50).map(teacher => `
+    if (schoolState.teachers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">No teachers found in database.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = schoolState.teachers.map(teacher => `
         <tr>
-            <td>${teacher.id}</td>
+            <td>TCH${String(teacher.id).padStart(3, '0')}</td>
             <td>${teacher.name}</td>
-            <td>${teacher.department}</td>
-            <td>${teacher.subjects}</td>
+            <td>${teacher.department || 'General'}</td>
+            <td>${teacher.subjects || 'N/A'}</td>
             <td>${teacher.email}</td>
             <td>
                 <div class="table-actions">
@@ -380,56 +220,19 @@ function loadTeachers() {
     `).join('');
 }
 
-function loadParents() {
-    const tbody = document.getElementById('parentsTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = schoolState.parents.slice(0, 50).map(parent => `
-        <tr>
-            <td>${parent.name}</td>
-            <td>${parent.students.join(', ')}</td>
-            <td>${parent.phone}</td>
-            <td>${parent.email}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="action-btn" onclick="viewItem('parent', '${parent.id}')">View</button>
-                    <button class="action-btn" onclick="editItem('parent', '${parent.id}')">Edit</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
-function loadStaff() {
-    const tbody = document.getElementById('staffTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = schoolState.staff.map(staff => `
-        <tr>
-            <td>${staff.id}</td>
-            <td>${staff.name}</td>
-            <td>${staff.role}</td>
-            <td>${staff.department}</td>
-            <td>${staff.email}</td>
-            <td>
-                <div class="table-actions">
-                    <button class="action-btn" onclick="viewItem('staff', '${staff.id}')">View</button>
-                    <button class="action-btn" onclick="editItem('staff', '${staff.id}')">Edit</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
-}
-
 function loadClasses() {
     const grid = document.getElementById('classesGrid');
     if (!grid) return;
 
+    if (schoolState.classes.length === 0) {
+        grid.innerHTML = '<div class="no-data">No classes defined.</div>';
+        return;
+    }
+
     grid.innerHTML = schoolState.classes.map(cls => `
         <div class="class-card">
-            <div class="class-title">${cls.name}</div>
-            <div class="class-info">Teacher: ${cls.teacher}</div>
-            <div class="class-info">Students: ${cls.students}/${cls.capacity}</div>
+            <div class="class-title">${cls}</div>
+            <div class="class-info">Academic Year: 2023-2024</div>
         </div>
     `).join('');
 }
@@ -438,15 +241,21 @@ function loadSubjects() {
     const tbody = document.getElementById('subjectsTableBody');
     if (!tbody) return;
 
+    if (schoolState.subjects.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No subjects found.</td></tr>';
+        return;
+    }
+
     tbody.innerHTML = schoolState.subjects.map(subject => `
         <tr>
             <td>${subject.code}</td>
             <td>${subject.name}</td>
-            <td>${subject.dept}</td>
+            <td>${subject.department}</td>
             <td>${subject.credits}</td>
             <td>
                 <div class="table-actions">
-                    <button class="action-btn" onclick="editItem('subject', '${subject.code}')">Edit</button>
+                    <button class="action-btn" onclick="editItem('subject', '${subject.id}')">Edit</button>
+                    <button class="action-btn" onclick="deleteItem('subject', '${subject.id}')">Delete</button>
                 </div>
             </td>
         </tr>
@@ -457,15 +266,20 @@ function loadAssignmentsTable() {
     const tbody = document.getElementById('assignmentsTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = schoolState.assignments.slice(0, 30).map(asn => `
+    if (schoolState.assignments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No assignments found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = schoolState.assignments.map(asn => `
         <tr>
-            <td>${asn.teacher}</td>
-            <td>${asn.subject}</td>
-            <td>${asn.class}</td>
-            <td>${asn.schedule}</td>
+            <td>${asn.teacher.name}</td>
+            <td>${asn.title}</td>
+            <td>${asn.className}</td>
+            <td>${new Date(asn.deadline).toLocaleString()}</td>
             <td>
                 <div class="table-actions">
-                    <button class="action-btn" onclick="editItem('assignment', '${asn.id}')">Edit</button>
+                    <button class="action-btn" onclick="viewItem('assignment', '${asn.id}')">View</button>
                     <button class="action-btn" onclick="deleteItem('assignment', '${asn.id}')">Delete</button>
                 </div>
             </td>
@@ -477,12 +291,17 @@ function loadEnrollment() {
     const tbody = document.getElementById('enrollmentTableBody');
     if (!tbody) return;
 
-    tbody.innerHTML = schoolState.enrollments.slice(0, 30).map(enr => `
+    if (!schoolState.enrollments || schoolState.enrollments.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">No enrollment records found.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = schoolState.enrollments.map(enr => `
         <tr>
-            <td>${enr.student}</td>
-            <td>${enr.class}</td>
-            <td>${enr.subjects}</td>
-            <td>${enr.enrollDate}</td>
+            <td>${enr.student.name}</td>
+            <td>${enr.className}</td>
+            <td>${enr.teacher.name}</td>
+            <td>${enr.id}</td>
             <td>
                 <div class="table-actions">
                     <button class="action-btn" onclick="viewItem('enrollment', '${enr.id}')">View</button>
@@ -606,13 +425,26 @@ function loadAnnouncements() {
     const grid = document.getElementById('announcementsGrid');
     if (!grid) return;
 
+    if (!schoolState.announcements || schoolState.announcements.length === 0) {
+        grid.innerHTML = '<p class="empty-message">No announcements found in database.</p>';
+        return;
+    }
+
     grid.innerHTML = schoolState.announcements.map(ann => `
         <div class="announcement-card">
             <div class="announcement-header">
-                <div class="announcement-title">${ann.title}</div>
-                <div class="announcement-date">${ann.date}</div>
+                <div class="announcement-title"><h3>${ann.title}</h3></div>
+                <div class="announcement-meta">
+                    <span class="badge badge-info">${ann.audience || 'all'}</span>
+                    <span class="badge badge-${ann.priority === 'urgent' ? 'danger' : (ann.priority === 'high' ? 'warning' : 'success')}">${ann.priority || 'normal'}</span>
+                    <span class="announcement-date">${new Date(ann.createdAt).toLocaleDateString()}</span>
+                </div>
             </div>
             <div class="announcement-content">${ann.content}</div>
+            <div class="announcement-footer">
+                <span class="announcement-author">By: ${ann.author?.name || 'Admin'}</span>
+                <button class="btn btn-danger btn-sm" onclick="deleteItem('announcement', '${ann.id}')">Delete</button>
+            </div>
         </div>
     `).join('');
 }
@@ -884,39 +716,29 @@ function viewItem(type, id) {
         { text: 'Edit', class: 'btn-primary', onclick: `closeModal(); editItem('${type}', '${id}')` },
         { text: 'Close', class: 'btn-secondary', onclick: 'closeModal()' }
     ]);
-    // Add Item Functions
-    function showAddModal(type) {
-        let title = '';
-        let content = '';
+}
+// Add Item Functions
+function showAddModal(type) {
+    let title = '';
+    let content = '';
 
-        switch (type) {
-            case 'student':
-                title = 'Add New Student';
-                content = `
+    switch (type) {
+        case 'student':
+            title = 'Allocate User as Student';
+            content = `
                 <form class="modal-form" id="addStudentForm">
-                    <div class="form-group">
-                        <label>First Name *</label>
-                        <input type="text" name="firstName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name *</label>
-                        <input type="text" name="lastName" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone</label>
-                        <input type="tel" name="phone">
+                    <div class="form-group full-width">
+                        <label>Select User *</label>
+                        <select name="id" required>
+                            <option value="">Select User from System</option>
+                            ${schoolState.users.filter(u => u.role !== 'STUDENT').map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('')}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Class *</label>
                         <select name="class" required>
                             <option value="">Select Class</option>
-                            <option value="Grade 1-A">Grade 1-A</option>
-                            <option value="Grade 2-A">Grade 2-A</option>
-                            <option value="Grade 3-A">Grade 3-A</option>
+                            ${schoolState.classes.map(c => `<option value="${c}">${c}</option>`).join('')}
                         </select>
                     </div>
                     <div class="form-group">
@@ -926,113 +748,68 @@ function viewItem(type, id) {
                             <option value="Inactive">Inactive</option>
                         </select>
                     </div>
-                    <div class="form-group full-width">
-                        <label>Address</label>
-                        <textarea name="address" rows="3"></textarea>
-                    </div>
                 </form>
             `;
-                break;
-            case 'teacher':
-                title = 'Add New Teacher';
-                content = `
+            break;
+        case 'teacher':
+            title = 'Allocate User as Teacher';
+            content = `
                 <form class="modal-form" id="addTeacherForm">
-                    <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" name="email" required>
+                    <div class="form-group full-width">
+                        <label>Select User *</label>
+                        <select name="id" required>
+                            <option value="">Select User from System</option>
+                            ${schoolState.users.filter(u => u.role !== 'TEACHER').map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('')}
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Department *</label>
                         <select name="department" required>
-                            <option value="">Select Department</option>
                             <option value="Science">Science</option>
                             <option value="Mathematics">Mathematics</option>
                             <option value="English">English</option>
                             <option value="History">History</option>
+                            <option value="Arts">Arts</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Experience (years)</label>
                         <input type="number" name="experience" min="0">
                     </div>
-                    <div class="form-group full-width">
-                        <label>Subjects</label>
-                        <input type="text" name="subjects" placeholder="e.g., Physics, Chemistry">
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Qualifications</label>
-                        <textarea name="qualifications" rows="3"></textarea>
-                    </div>
                 </form>
             `;
-                break;
-            case 'parent':
-                title = 'Add New Parent';
-                content = `
-                <form class="modal-form" id="addParentForm">
+            break;
+        case 'enrollment':
+            title = 'Allocate Student to Class';
+            content = `
+                <form class="modal-form" id="allocateForm" method="POST" action="${contextPath}/admin/allocate">
                     <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Phone *</label>
-                        <input type="tel" name="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Relationship</label>
-                        <select name="relationship">
-                            <option value="Father">Father</option>
-                            <option value="Mother">Mother</option>
-                            <option value="Guardian">Guardian</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label>Student ID(s)</label>
-                        <input type="text" name="students" placeholder="e.g., STU0001, STU0002">
-                    </div>
-                </form>
-            `;
-                break;
-            case 'staff':
-                title = 'Add New Staff Member';
-                content = `
-                <form class="modal-form" id="addStaffForm">
-                    <div class="form-group">
-                        <label>Full Name *</label>
-                        <input type="text" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email *</label>
-                        <input type="email" name="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Role *</label>
-                        <select name="role" required>
-                            <option value="">Select Role</option>
-                            <option value="Librarian">Librarian</option>
-                            <option value="Lab Assistant">Lab Assistant</option>
-                            <option value="Counselor">Counselor</option>
-                            <option value="IT Support">IT Support</option>
+                        <label>Student *</label>
+                        <select name="studentId" required>
+                            <option value="">Select Student</option>
+                            ${schoolState.students.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>Department *</label>
-                        <input type="text" name="department" required>
+                        <label>Teacher *</label>
+                        <select name="teacherId" required>
+                            <option value="">Select Teacher</option>
+                            ${schoolState.teachers.map(t => `<option value="${t.id}">${t.name}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Class Name *</label>
+                        <select name="className" required>
+                            <option value="">Select Class</option>
+                            ${schoolState.classes.map(c => `<option value="${c}">${c}</option>`).join('')}
+                        </select>
                     </div>
                 </form>
             `;
-                break;
-            case 'exam':
-                title = 'Create New Exam';
-                content = `
+            break;
+        case 'exam':
+            title = 'Create New Exam';
+            content = `
                 <form class="modal-form" id="addExamForm">
                     <div class="form-group">
                         <label>Exam Name *</label>
@@ -1070,10 +847,46 @@ function viewItem(type, id) {
                     </div>
                 </form>
             `;
-                break;
-            case 'announcement':
-                title = 'Create New Announcement';
-                content = `
+            break;
+        case 'subject':
+            title = 'Create New Course/Subject';
+            content = `
+                <form class="modal-form" id="addSubjectForm">
+                    <div class="form-group">
+                        <label>Subject Code *</label>
+                        <input type="text" name="code" required placeholder="e.g., CS101">
+                    </div>
+                    <div class="form-group">
+                        <label>Subject Name *</label>
+                        <input type="text" name="name" required placeholder="e.g., Introduction to Programming">
+                    </div>
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <select name="dept" required>
+                            <option value="Science">Science</option>
+                            <option value="Mathematics">Mathematics</option>
+                            <option value="English">English</option>
+                            <option value="History">History</option>
+                            <option value="Arts">Arts</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Credits *</label>
+                        <input type="number" name="credits" value="3" min="1" max="10">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Assign Teacher</label>
+                        <select name="teacherId">
+                            <option value="">-- No Teacher Assigned --</option>
+                            ${schoolState.teachers.map(t => `<option value="${t.id}">${t.name} (${t.email})</option>`).join('')}
+                        </select>
+                    </div>
+                </form>
+            `;
+            break;
+        case 'announcement':
+            title = 'Create New Announcement';
+            content = `
                 <form class="modal-form" id="addAnnouncementForm">
                     <div class="form-group full-width">
                         <label>Title *</label>
@@ -1102,10 +915,10 @@ function viewItem(type, id) {
                     </div>
                 </form>
             `;
-                break;
-            case 'event':
-                title = 'Add Calendar Event';
-                content = `
+            break;
+        case 'event':
+            title = 'Add Calendar Event';
+            content = `
                 <form class="modal-form" id="addEventForm">
                     <div class="form-group">
                         <label>Event Title *</label>
@@ -1134,11 +947,11 @@ function viewItem(type, id) {
                     </div>
                 </form>
             `;
-                break;
+            break;
 
-            case 'class':
-                title = 'Add New Class';
-                content = `
+        case 'class':
+            title = 'Add New Class';
+            content = `
                 <form class="modal-form" id="addClassForm">
                     <div class="form-group">
                         <label>Class Name *</label>
@@ -1157,11 +970,11 @@ function viewItem(type, id) {
                         <input type="text" name="room">
                     </div>
                 </form>`;
-                break;
+            break;
 
-            case 'subject':
-                title = 'Add New Subject';
-                content = `
+        case 'subject':
+            title = 'Add New Subject';
+            content = `
                 <form class="modal-form" id="addSubjectForm">
                      <div class="form-group">
                         <label>Subject Code *</label>
@@ -1180,11 +993,11 @@ function viewItem(type, id) {
                         <input type="number" name="credits" value="3">
                     </div>
                 </form>`;
-                break;
+            break;
 
-            case 'assignment':
-                title = 'Add New Assignment';
-                content = `
+        case 'assignment':
+            title = 'Add New Assignment';
+            content = `
                 <form class="modal-form" id="addAssignmentForm">
                     <div class="form-group">
                         <label>Title *</label>
@@ -1203,31 +1016,58 @@ function viewItem(type, id) {
                         <input type="date" name="dueDate" required>
                     </div>
                 </form>`;
-                break;
+            break;
 
-            default:
-                title = `Add New ${type}`;
-                content = `<p>Add form for ${type} coming soon.</p>`;
-        }
-
-        openModal(title, content, [
-            { text: 'Cancel', class: 'btn-secondary', onclick: 'closeModal()' },
-            { text: 'Save', class: 'btn-primary', onclick: `submitAdd('${type}')` }
-        ]);
+        default:
+            title = `Add New ${type}`;
+            content = `<p>Add form for ${type} coming soon.</p>`;
     }
 
-    // Edit Item Functions
-    function editItem(type, id) {
-        const item = findItem(type, id);
-        if (!item) return showToast('Item not found', 'error');
+    openModal(title, content, [
+        { text: 'Cancel', class: 'btn-secondary', onclick: 'closeModal()' },
+        { text: 'Save', class: 'btn-primary', onclick: `submitAdd('${type}')` }
+    ]);
+}
 
-        let title = '';
-        let content = '';
+// Edit Item Functions
+function editItem(type, id) {
+    const item = findItem(type, id);
+    if (!item) return showToast('Item not found', 'error');
 
-        switch (type) {
-            case 'student':
-                title = `Edit Student - ${item.name}`;
-                content = `
+    let title = '';
+    let content = '';
+
+    switch (type) {
+        case 'user':
+            title = `Edit User - ${item.name}`;
+            content = `
+                <form class="modal-form" id="editForm">
+                    <div class="form-group">
+                        <label>User ID</label>
+                        <input type="text" value="${item.id}" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" name="name" value="${item.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" name="email" value="${item.email}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role *</label>
+                        <select name="role" required>
+                            <option value="STUDENT" ${item.role === 'STUDENT' ? 'selected' : ''}>Student</option>
+                            <option value="TEACHER" ${item.role === 'TEACHER' ? 'selected' : ''}>Teacher</option>
+                            <option value="ADMIN" ${item.role === 'ADMIN' ? 'selected' : ''}>Admin</option>
+                        </select>
+                    </div>
+                </form>
+            `;
+            break;
+        case 'student':
+            title = `Edit Student - ${item.name}`;
+            content = `
                 <form class="modal-form" id="editForm">
                     <div class="form-group">
                         <label>Student ID</label>
@@ -1262,10 +1102,10 @@ function viewItem(type, id) {
                     </div>
                 </form>
             `;
-                break;
-            case 'teacher':
-                title = `Edit Teacher - ${item.name}`;
-                content = `
+            break;
+        case 'teacher':
+            title = `Edit Teacher - ${item.name}`;
+            content = `
                 <form class="modal-form" id="editForm">
                     <div class="form-group">
                         <label>Teacher ID</label>
@@ -1295,11 +1135,11 @@ function viewItem(type, id) {
                     </div>
                 </form>
             `;
-                break;
+            break;
 
-            case 'class':
-                title = `Edit Class - ${item.name}`;
-                content = `
+        case 'class':
+            title = `Edit Class - ${item.name}`;
+            content = `
                 <form class="modal-form" id="editForm">
                     <div class="form-group">
                         <label>Class ID</label>
@@ -1318,11 +1158,11 @@ function viewItem(type, id) {
                         <input type="number" name="capacity" value="${item.capacity}">
                     </div>
                 </form>`;
-                break;
+            break;
 
-            case 'subject':
-                title = `Edit Subject - ${item.name}`;
-                content = `
+        case 'subject':
+            title = `Edit Subject - ${item.name}`;
+            content = `
                 <form class="modal-form" id="editForm">
                     <div class="form-group">
                          <label>Subject Code</label>
@@ -1340,12 +1180,19 @@ function viewItem(type, id) {
                         <label>Credits</label>
                         <input type="number" name="credits" value="${item.credits}">
                     </div>
+                    <div class="form-group full-width">
+                        <label>Assign Teacher</label>
+                        <select name="teacherId">
+                            <option value="">-- No Teacher Assigned --</option>
+                            ${schoolState.teachers.map(t => `<option value="${t.id}" ${item.teacherId == t.id ? 'selected' : ''}>${t.name} (${t.email})</option>`).join('')}
+                        </select>
+                    </div>
                 </form>`;
-                break;
+            break;
 
-            case 'assignment':
-                title = `Edit Assignment - ${item.title}`;
-                content = `
+        case 'assignment':
+            title = `Edit Assignment - ${item.title}`;
+            content = `
                 <form class="modal-form" id="editForm">
                     <div class="form-group">
                         <label>ID</label>
@@ -1368,24 +1215,24 @@ function viewItem(type, id) {
                         </select>
                     </div>
                 </form>`;
-                break;
-            default:
-                content = `<p>Edit form for ${type}: ${id}</p>`;
-        }
-
-        openModal(title, content, [
-            { text: 'Cancel', class: 'btn-secondary', onclick: 'closeModal()' },
-            { text: 'Save Changes', class: 'btn-primary', onclick: `submitEdit('${type}', '${id}')` }
-        ]);
+            break;
+        default:
+            content = `<p>Edit form for ${type}: ${id}</p>`;
     }
 
-    // Delete Item Functions
-    function deleteItem(type, id) {
-        const item = findItem(type, id);
-        if (!item) return showToast('Item not found', 'error');
+    openModal(title, content, [
+        { text: 'Cancel', class: 'btn-secondary', onclick: 'closeModal()' },
+        { text: 'Save Changes', class: 'btn-primary', onclick: `submitEdit('${type}', '${id}')` }
+    ]);
+}
 
-        const itemName = item.name || item.title || id;
-        const content = `
+// Delete Item Functions
+function deleteItem(type, id) {
+    const item = findItem(type, id);
+    if (!item) return showToast('Item not found', 'error');
+
+    const itemName = item.name || item.title || id;
+    const content = `
         <div class="delete-confirmation">
             <div class="delete-icon">⚠️</div>
             <h3>Delete ${type}?</h3>
@@ -1396,372 +1243,172 @@ function viewItem(type, id) {
         </div>
     `;
 
-        openModal(`Delete ${type}`, content, [
-            { text: 'Cancel', class: 'btn-secondary', onclick: 'closeModal()' },
-            { text: 'Delete', class: 'btn-primary', onclick: `confirmDelete('${type}', '${id}')` }
-        ]);
-    }
-
-    // Helper Functions
-    function findItem(type, id) {
-        const dataMap = {
-            'student': 'students',
-            'teacher': 'teachers',
-            'parent': 'parents',
-            'staff': 'staff',
-            'exam': 'exams',
-            'result': 'results',
-            'fee': 'fees',
-            'assignment': 'assignments',
-            'enrollment': 'enrollments',
-            'attendance': 'attendance',
-            'class': 'classes',
-            'subject': 'subjects'
-        };
-
-        const dataKey = dataMap[type];
-        if (!dataKey || !schoolState[dataKey]) return null;
-
-        return schoolState[dataKey].find(item => item.id === id || item.code === id);
-    }
-
-
-    function submitAdd(type) {
-        const form = document.querySelector('.modal-form');
-        if (!form) return closeModal();
-
-        // Extract form data
-        const formData = new FormData(form);
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-
-        // Generate new item based on type
-        let newItem = null;
-
-        switch (type) {
-            case 'student':
-                const studentId = `STU${String(schoolState.students.length + 1).padStart(4, '0')}`;
-                newItem = {
-                    id: studentId,
-                    name: `${data.firstName} ${data.lastName}`,
-                    class: data.class,
-                    email: data.email,
-                    status: data.status,
-                    joinDate: new Date().toISOString().split('T')[0]
-                };
-                schoolState.students.push(newItem);
-                break;
-
-            case 'teacher':
-                const teacherId = `TCH${String(schoolState.teachers.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: teacherId,
-                    name: data.name,
-                    department: data.department,
-                    subjects: data.subjects || '',
-                    email: data.email,
-                    experience: parseInt(data.experience) || 0
-                };
-                schoolState.teachers.push(newItem);
-                break;
-
-            case 'parent':
-                const parentId = `PAR${String(schoolState.parents.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: parentId,
-                    name: data.name,
-                    students: data.students ? data.students.split(',').map(s => s.trim()) : [],
-                    phone: data.phone,
-                    email: data.email
-                };
-                schoolState.parents.push(newItem);
-                break;
-
-            case 'staff':
-                const staffId = `STF${String(schoolState.staff.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: staffId,
-                    name: data.name,
-                    role: data.role,
-                    department: data.department,
-                    email: data.email
-                };
-                schoolState.staff.push(newItem);
-                break;
-
-            case 'exam':
-                const examId = `EXM${String(schoolState.exams.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: examId,
-                    name: data.name,
-                    subject: data.subject,
-                    class: data.class,
-                    date: data.date,
-                    duration: `${data.duration} min`
-                };
-                schoolState.exams.push(newItem);
-                break;
-
-            case 'announcement':
-                const annId = `ANN${String(schoolState.announcements.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: annId,
-                    title: data.title,
-                    content: data.content,
-                    date: new Date().toISOString().split('T')[0],
-                    author: 'Admin'
-                };
-                schoolState.announcements.push(newItem);
-                break;
-
-            case 'event':
-                const eventId = `EVT${String(schoolState.events.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: eventId,
-                    title: data.title,
-                    date: data.date,
-                    type: data.type
-                };
-                schoolState.events.push(newItem);
-                break;
-
-            case 'class':
-                const classId = `CLS${String(schoolState.classes.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: classId,
-                    name: data.name,
-                    teacher: data.teacher,
-                    capacity: parseInt(data.capacity) || 30,
-                    room: data.room,
-                    students: 0
-                };
-                schoolState.classes.push(newItem);
-                break;
-
-            case 'subject':
-                newItem = {
-                    code: data.code,
-                    name: data.name,
-                    dept: data.dept,
-                    credits: parseInt(data.credits) || 3
-                };
-                schoolState.subjects.push(newItem);
-                break;
-
-            case 'assignment':
-                const assignId = `ASG${String(schoolState.assignments.length + 1).padStart(3, '0')}`;
-                newItem = {
-                    id: assignId,
-                    title: data.title,
-                    subject: data.subject,
-                    class: data.class,
-                    dueDate: data.dueDate,
-                    status: 'Pending'
-                };
-                schoolState.assignments.push(newItem);
-                break;
-        }
-
-        closeModal();
-        showToast(`${type} added successfully!`, 'success');
-
-        // Reload the current section to show new data
-        const activeSection = document.querySelector('.content-section.active');
-        if (activeSection) {
-            loadSectionData(activeSection.id);
-        }
-    }
-
-    function submitEdit(type, id) {
-        const form = document.querySelector('.modal-form');
-        if (!form) return closeModal();
-
-        // Extract form data
-        const formData = new FormData(form);
-        const data = {};
-        for (let [key, value] of formData.entries()) {
-            data[key] = value;
-        }
-
-        // Find and update the item
-        const dataMap = {
-            'student': 'students',
-            'teacher': 'teachers',
-            'parent': 'parents',
-            'staff': 'staff',
-            'exam': 'exams',
-            'result': 'results',
-            'attendance': 'attendance',
-            'subject': 'subjects',
-            'class': 'classes',
-            'assignment': 'assignments'
-        };
-
-        const dataKey = dataMap[type];
-        if (!dataKey || !schoolState[dataKey]) {
-            closeModal();
-            return showToast('Error updating item', 'error');
-        }
-
-        const itemIndex = schoolState[dataKey].findIndex(item => item.id === id || item.code === id);
-        if (itemIndex === -1) {
-            closeModal();
-            const errorMsg = type === 'subject' ? `Subject with code ${id} not found` : 'Item not found';
-            return showToast(errorMsg, 'error');
-        }
-
-        // Update item based on type
-        switch (type) {
-            case 'student':
-                schoolState.students[itemIndex] = {
-                    ...schoolState.students[itemIndex],
-                    name: data.name,
-                    email: data.email,
-                    class: data.class,
-                    status: data.status,
-                    joinDate: data.joinDate
-                };
-                break;
-
-            case 'teacher':
-                schoolState.teachers[itemIndex] = {
-                    ...schoolState.teachers[itemIndex],
-                    name: data.name,
-                    email: data.email,
-                    department: data.department,
-                    subjects: data.subjects
-                };
-                break;
-
-            case 'parent':
-                schoolState.parents[itemIndex] = {
-                    ...schoolState.parents[itemIndex],
-                    name: data.name,
-                    email: data.email,
-                    phone: data.phone
-                };
-                break;
-
-            case 'staff':
-                schoolState.staff[itemIndex] = {
-                    ...schoolState.staff[itemIndex],
-                    name: data.name,
-                    email: data.email,
-                    role: data.role,
-                    department: data.department
-                };
-                break;
-
-            case 'exam':
-                schoolState.exams[itemIndex] = {
-                    ...schoolState.exams[itemIndex],
-                    name: data.name,
-                    subject: data.subject,
-                    class: data.class,
-                    date: data.date,
-                    duration: data.duration
-                };
-                break;
-
-            case 'attendance':
-                schoolState.attendance[itemIndex] = {
-                    ...schoolState.attendance[itemIndex],
-                    status: data.status
-                };
-                break;
-
-            case 'result':
-                schoolState.results[itemIndex] = {
-                    ...schoolState.results[itemIndex],
-                    marks: parseInt(data.marks),
-                    grade: data.grade
-                };
-                break;
-
-            case 'subject':
-                schoolState.subjects[itemIndex] = {
-                    ...schoolState.subjects[itemIndex],
-                    name: data.name,
-                    dept: data.dept,
-                    credits: parseInt(data.credits)
-                };
-                break;
-
-            case 'class':
-                schoolState.classes[itemIndex] = {
-                    ...schoolState.classes[itemIndex],
-                    name: data.name,
-                    teacher: data.teacher,
-                    capacity: parseInt(data.capacity)
-                };
-                break;
-
-            case 'assignment':
-                schoolState.assignments[itemIndex] = {
-                    ...schoolState.assignments[itemIndex],
-                    title: data.title,
-                    dueDate: data.dueDate,
-                    status: data.status
-                };
-                break;
-        }
-
-        closeModal();
-        showToast(`${type} updated successfully!`, 'success');
-
-        // Reload the current section
-        const activeSection = document.querySelector('.content-section.active');
-        if (activeSection) {
-            loadSectionData(activeSection.id);
-        }
-    }
+    openModal(`Delete ${type}`, content, [
+        { text: 'Cancel', class: 'btn-secondary', onclick: 'closeModal()' },
+        { text: 'Delete', class: 'btn-primary', onclick: `confirmDelete('${type}', '${id}')` }
+    ]);
 }
 
-function confirmDelete(type, id) {
-    // Find and remove the item
+// Helper Functions
+function findItem(type, id) {
     const dataMap = {
         'student': 'students',
         'teacher': 'teachers',
-        'parent': 'parents',
-        'staff': 'staff',
         'exam': 'exams',
-        'assignment': 'assignments',
         'result': 'results',
-        'class': 'classes',
-        'subject': 'subjects',
         'fee': 'fees',
+        'assignment': 'assignments',
         'enrollment': 'enrollments',
         'attendance': 'attendance',
-        'event': 'events',
-        'announcement': 'announcements'
+        'class': 'classes',
+        'subject': 'subjects'
     };
 
     const dataKey = dataMap[type];
-    if (!dataKey || !schoolState[dataKey]) {
-        closeModal();
-        return showToast('Error deleting item', 'error');
+    if (!dataKey || !schoolState[dataKey]) return null;
+
+    return schoolState[dataKey].find(item => item.id === id || item.code === id);
+}
+
+
+function submitAdd(type) {
+    const form = document.querySelector('.modal-form');
+    if (!form) return closeModal();
+
+    if (type === 'enrollment') {
+        form.submit();
+        return;
     }
 
-    const itemIndex = schoolState[dataKey].findIndex(item => item.id === id || item.code === id);
-    if (itemIndex === -1) {
-        closeModal();
-        const errorMsg = type === 'subject' ? `Subject with code ${id} not found` : 'Item not found';
-        return showToast(errorMsg, 'error');
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    let endpoint = '';
+    if (type === 'student' || type === 'teacher' || type === 'user') {
+        endpoint = `${contextPath}/admin/api/users`;
+
+        // If selecting existing user, enrich data
+        if (data.id) {
+            const existingUser = schoolState.users.find(u => u.id == data.id);
+            if (existingUser) {
+                data.name = existingUser.name;
+                data.email = existingUser.email;
+                data.id = existingUser.id;
+            }
+        }
+
+        if (type === 'student') data.role = 'STUDENT';
+        if (type === 'teacher') data.role = 'TEACHER';
+    } else if (type === 'subject') {
+        endpoint = `${contextPath}/admin/api/subjects`;
+    } else if (type === 'announcement') {
+        endpoint = `${contextPath}/admin/api/announcements`;
     }
 
-    // Remove the item from state
-    schoolState[dataKey].splice(itemIndex, 1);
+    if (endpoint) {
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    showToast(res.message, 'success');
+                    closeModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(res.message, 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Server error', 'error');
+                console.error(err);
+            });
+        return;
+    }
 
     closeModal();
-    showToast(`${type} deleted successfully!`, 'success');
+}
 
-    // Reload the current section
-    const activeSection = document.querySelector('.content-section.active');
-    if (activeSection) {
-        loadSectionData(activeSection.id);
+function submitEdit(type, id) {
+    const form = document.querySelector('.modal-form');
+    if (!form) return closeModal();
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    if (id && id !== 'undefined' && id !== 'null' && id !== '') {
+        data.id = id;
     }
+
+    let endpoint = '';
+    if (type === 'student' || type === 'teacher' || type === 'user') {
+        endpoint = `${contextPath}/admin/api/users`;
+        if (type === 'student') data.role = 'STUDENT';
+        if (type === 'teacher') data.role = 'TEACHER';
+    } else if (type === 'subject') {
+        endpoint = `${contextPath}/admin/api/subjects`;
+    }
+
+    if (endpoint) {
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    showToast(res.message, 'success');
+                    closeModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(res.message, 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Server error', 'error');
+                console.error(err);
+            });
+        return;
+    }
+
+    showToast('Persistent save not implemented for this type yet', 'info');
+    closeModal();
+}
+
+function confirmDelete(type, id) {
+    let endpoint = '';
+    if (type === 'student' || type === 'teacher' || type === 'user') {
+        endpoint = `${contextPath}/admin/api/users?id=${id}`;
+    } else if (type === 'subject') {
+        endpoint = `${contextPath}/admin/api/subjects?id=${id}`;
+    } else if (type === 'announcement') {
+        endpoint = `${contextPath}/admin/api/announcements?id=${id}`;
+    }
+
+    if (endpoint) {
+        fetch(endpoint, { method: 'DELETE' })
+            .then(res => res.json())
+            .then(res => {
+                if (res.success) {
+                    showToast(res.message, 'success');
+                    closeModal();
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    showToast(res.message, 'error');
+                }
+            })
+            .catch(err => {
+                showToast('Server error', 'error');
+                console.error(err);
+            });
+        return;
+    }
+
+    showToast('Delete not implemented for this type yet', 'info');
+    closeModal();
 }
 
 function exportData(type) {
@@ -1866,6 +1513,6 @@ window.showAddModal = showAddModal;
 window.closeModal = closeModal;
 window.editItem = editItem;
 window.deleteItem = deleteItem;
-window.viewDetails = viewDetails;
+window.viewItem = viewItem;
 window.loadDashboard = loadDashboard;
 window.showToast = showToast;

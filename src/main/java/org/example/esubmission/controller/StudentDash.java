@@ -12,6 +12,8 @@ import org.example.esubmission.model.Assignment;
 import org.example.esubmission.model.StudentClass;
 import org.example.esubmission.model.Submission;
 import org.example.esubmission.model.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -108,7 +110,25 @@ public class StudentDash extends HttpServlet {
             request.setAttribute("assignments", allAssignments);
             request.setAttribute("recentSubmissions", submissions);
             request.setAttribute("enrolledClasses", studentClasses);
+
+            // Serialize all data to JSON for frontend
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
             
+            Map<String, Object> realData = new HashMap<>();
+            realData.put("currentUser", student);
+            realData.put("enrolledClasses", studentClasses);
+            realData.put("assignments", allAssignments);
+            realData.put("recentSubmissions", submissions);
+            realData.put("stats", Map.of(
+                "totalCourses", studentClasses.size(),
+                "submittedAssignments", submitted,
+                "pendingAssignments", pending
+            ));
+            
+            String realDataJson = mapper.writeValueAsString(realData);
+            request.setAttribute("realData", realDataJson);
+
             request.getRequestDispatcher("/WEB-INF/pages/studentDash.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();

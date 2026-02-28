@@ -47,22 +47,27 @@ public class AssignmentService {
      * @param deadline    the submission deadline
      * @return the created assignment
      */
-    public Assignment createAssignment(User teacher, String title, String description, String className, LocalDateTime deadline) {
+    public Assignment createAssignment(User teacher, String title, String description, String className, LocalDateTime deadline, String googleFormUrl, Integer points) {
         Assignment assignment = new Assignment();
         assignment.setTeacher(teacher);
         assignment.setTitle(title);
         assignment.setDescription(description);
         assignment.setClassName(className);
         assignment.setDeadline(deadline);
+        if (googleFormUrl != null && !googleFormUrl.trim().isEmpty()) {
+            assignment.setGoogleFormUrl(googleFormUrl.trim());
+        }
+        assignment.setPoints(points != null ? points : 100);
         Assignment savedAssignment = assignmentDAO.save(assignment);
         
         // Broadcast new assignment to the class using JSON string
-        String jsonMessage = String.format("{\"type\":\"NEW_ASSIGNMENT\", \"id\":%d, \"title\":\"%s\", \"description\":\"%s\", \"course\":\"%s\", \"dueDate\":\"%s\"}", 
+        String jsonMessage = String.format("{\"type\":\"NEW_ASSIGNMENT\", \"id\":%d, \"title\":\"%s\", \"description\":\"%s\", \"course\":\"%s\", \"dueDate\":\"%s\", \"points\":%d}", 
             savedAssignment.getId(),
             title.replace("\"", "\\\""), 
             description.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r"),
             className.replace("\"", "\\\""), 
-            deadline.toString()
+            deadline.toString(),
+            savedAssignment.getPoints()
         );
         org.example.esubmission.websocket.AssignmentWebSocket.broadcastToClass(teacher.getId(), className, jsonMessage);
         

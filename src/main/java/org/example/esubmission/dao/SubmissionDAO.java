@@ -126,4 +126,16 @@ public class SubmissionDAO {
                     .uniqueResult();
         }
     }
+
+    /**
+     * Retrieves all submissions in the system.
+     *
+     * @return a list of all submissions, ordered by submission date descending
+     */
+    public List<Submission> findAll() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Submission ORDER BY submittedAt DESC", Submission.class)
+                    .list();
+        }
+    }
 }

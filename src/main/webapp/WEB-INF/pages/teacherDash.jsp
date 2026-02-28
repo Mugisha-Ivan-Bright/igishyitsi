@@ -17,7 +17,19 @@
             </head>
 
             <body>
-                <!-- Toast Container -->d
+                <script id="server-data" type="application/json">
+                    ${realData != null && realData != '' ? realData : "{}"}
+                </script>
+                <script>
+                    try {
+                        window.serverData = JSON.parse(document.getElementById('server-data').textContent);
+                    } catch (e) {
+                        window.serverData = {};
+                        console.error("Failed to parse serverData", e);
+                    }
+                    console.log("Teacher Server Data Loaded:", window.serverData);
+                </script>
+                <!-- Toast Container -->
                 <div id="toastContainer" class="toast-container"></div>
 
                 <!-- Hamburger Menu -->
@@ -111,23 +123,25 @@
                         <div class="stats-grid">
                             <div class="stat-card" onclick="navigateTo(event, 'students')" style="cursor: pointer;">
                                 <div class="stat-label">Enrolled Students</div>
-                                <div class="stat-value">${studentCount != null ? studentCount : 0}</div>
-                                <div class="stat-change">↑ 12% across your courses</div>
+                                <div class="stat-value">${stats.studentCount != null ? stats.studentCount : 0}</div>
+                                <div class="stat-change">Total across your classes</div>
                             </div>
                             <div class="stat-card" onclick="navigateTo(event, 'courses')" style="cursor: pointer;">
-                                <div class="stat-label">My Courses</div>
+                                <div class="stat-label">My Classrooms</div>
                                 <div class="stat-value">${classes != null ? classes.size() : 0}</div>
-                                <div class="stat-change">Active this semester</div>
+                                <div class="stat-change">Active sections</div>
                             </div>
                             <div class="stat-card" onclick="navigateTo(event, 'assignments')" style="cursor: pointer;">
-                                <div class="stat-label">Pending Assignments</div>
-                                <div class="stat-value">${assignmentCount != null ? assignmentCount : 0}</div>
-                                <div class="stat-change">↓ 8 from last week</div>
+                                <div class="stat-label">Active Assignments</div>
+                                <div class="stat-value">${stats.assignmentCount != null ? stats.assignmentCount : 0}
+                                </div>
+                                <div class="stat-change">Awaiting submissions</div>
                             </div>
                             <div class="stat-card" onclick="navigateTo(event, 'analytics')" style="cursor: pointer;">
-                                <div class="stat-label">Completion Rate</div>
-                                <div class="stat-value">92%</div>
-                                <div class="stat-change">↑ 5% from last month</div>
+                                <div class="stat-label">Submissions</div>
+                                <div class="stat-value">${stats.submissionCount != null ? stats.submissionCount : 0}
+                                </div>
+                                <div class="stat-change">To be graded</div>
                             </div>
                         </div>
 
@@ -395,8 +409,8 @@
                             <div class="header-title">
                                 <button class="btn-back" onclick="navigateTo(event, 'students')">← Back to
                                     Students</button>
-                                <h2 id="detailName">Emma Johnson</h2>
-                                <p id="detailEmail" class="header-subtitle">emma.j@email.com</p>
+                                <h2 id="detailName"></h2>
+                                <p id="detailEmail" class="header-subtitle"></p>
                             </div>
                             <div class="header-actions">
                                 <button class="btn btn-secondary" onclick="navigateTo(event, 'messages')">💬
@@ -534,11 +548,10 @@
                                     style="text-align: center; padding-bottom: 24px; border-bottom: 1px solid var(--glass-border);">
                                     <div class="profile-avatar-lg" id="detailAvatar"
                                         style="width: 80px; height: 80px; margin: 0 auto 16px; font-size: 32px; background: var(--accent-gradient); color: #000; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-weight: 800;">
-                                        EJ</div>
-                                    <h3 id="detailSidebarName">Emma Johnson</h3>
+                                        --</div>
+                                    <h3 id="detailSidebarName"></h3>
                                     <p id="detailSidebarCourse"
-                                        style="color: var(--accent-cyan); font-weight: 600; margin-top: 4px;">Web
-                                        Development
+                                        style="color: var(--accent-cyan); font-weight: 600; margin-top: 4px;">
                                     </p>
                                 </div>
                                 <div style="margin-top: 24px;">
@@ -661,6 +674,7 @@
                         </div>
                     </div>
 
+
                     <!-- Assignments Section -->
                     <div id="assignments" class="content-section">
                         <header class="header">
@@ -676,15 +690,18 @@
 
                         <div class="dashboard-grid">
                             <div class="section-card">
-                                <h3>New Assignment</h3>
-                                <form style="margin-top: 20px;" onsubmit="createAssignment(event)">
+                                <h3>➕ New Assignment</h3>
+                                <form style="margin-top: 20px;"
+                                    action="${pageContext.request.contextPath}/teacher/dashboard" method="POST">
+                                    <input type="hidden" name="action" value="createAssignment">
                                     <div class="form-group">
-                                        <label>Assignment Title</label>
-                                        <input type="text" id="assignTitle" placeholder="e.g. Final Project" required>
+                                        <label for="assignTitle">Assignment Title</label>
+                                        <input type="text" id="assignTitle" name="title"
+                                            placeholder="e.g. Final Project" required>
                                     </div>
                                     <div class="form-group">
-                                        <label>Course</label>
-                                        <select name="className" required>
+                                        <label for="assignCourse">Course</label>
+                                        <select id="assignCourse" name="className" required>
                                             <option value="">Select one of your courses</option>
                                             <c:forEach var="cls" items="${classes}">
                                                 <option value="${cls}">${cls}</option>
@@ -694,43 +711,71 @@
                                     <div class="form-group"
                                         style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                                         <div>
-                                            <label>Due Date</label>
-                                            <input type="date" required>
+                                            <label for="assignDueDate">Due Date</label>
+                                            <input type="date" id="assignDueDate" name="deadline" required>
                                         </div>
                                         <div>
-                                            <label>Points</label>
-                                            <input type="number" placeholder="100" required>
+                                            <label for="assignPoints">Points</label>
+                                            <input type="number" id="assignPoints" name="points" placeholder="100"
+                                                required>
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label>Upload Materials</label>
-                                        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-                                            <input type="file" id="fileInput" name="file" style="display: none;"
-                                                onchange="handleFileUpload(this)">
-                                            <p class="upload-text" id="uploadText">Drag files here or click to upload
-                                            </p>
-                                        </div>
+                                        <label for="assignDesc">Description *</label>
+                                        <textarea id="assignDesc" name="description" rows="3" required
+                                            style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:8px;color:white;padding:10px;font-size:14px;resize:vertical;"
+                                            placeholder="What should students do?"></textarea>
                                     </div>
-                                    <button class="btn btn-primary" style="width: 100%;">Create Assignment</button>
+                                    <div class="form-group">
+                                        <label for="assignGoogleForm">Google Form URL <span
+                                                style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+                                        <input type="url" id="assignGoogleForm" name="googleFormUrl"
+                                            placeholder="https://forms.gle/...">
+                                    </div>
+                                    <c:if test="${not empty error}">
+                                        <p style="color:#f87171;margin-bottom:12px;">⚠ ${error}</p>
+                                    </c:if>
+                                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                        Create Assignment
+                                    </button>
                                 </form>
                             </div>
 
                             <div class="section-card">
-                                <h3>Recent Assignments</h3>
+                                <h3>📋 Recent Assignments</h3>
                                 <div class="upcoming-list" id="assignmentList" style="margin-top: 16px;">
                                     <c:forEach var="assignment" items="${assignments}">
-                                        <div class="upcoming-item" onclick="openAssignmentDetail('${assignment.title}')"
-                                            style="cursor: pointer;">
-                                            <div class="upcoming-info">
-                                                <h4>${assignment.title}</h4>
-                                                <p>${assignment.className} • Due ${assignment.formattedDeadline}</p>
+                                        <div class="upcoming-item"
+                                            style="cursor:pointer;flex-direction:column;align-items:flex-start;gap:6px;"
+                                            onclick="openAssignmentDetail('${assignment.title}')">
+                                            <div
+                                                style="display:flex;justify-content:space-between;width:100%;align-items:center;">
+                                                <div class="upcoming-info">
+                                                    <h4>${assignment.title}</h4>
+                                                    <p>${assignment.className} • Due ${assignment.formattedDeadline} •
+                                                        ${assignment.points} pts</p>
+                                                </div>
+                                                <div
+                                                    class="upcoming-status ${assignment.status == 'Closed' ? 'status-closed' : ''}">
+                                                    ${assignment.status}</div>
                                             </div>
-                                            <div class="upcoming-status">${assignment.status}</div>
+                                            <p style="font-size:13px;color:var(--text-muted);margin:0;">
+                                                <c:out value="${assignment.description}" />
+                                            </p>
+                                            <c:if test="${not empty assignment.googleFormUrl}">
+                                                <a href="${assignment.googleFormUrl}" target="_blank"
+                                                    onclick="event.stopPropagation()"
+                                                    style="font-size:12px;color:#38bdf8;text-decoration:none;">
+                                                    🔗 Google Form attached
+                                                </a>
+                                            </c:if>
                                         </div>
                                     </c:forEach>
                                     <c:if test="${empty assignments}">
-                                        <p style="text-align: center; color: #a0aec0; padding: 20px;">No assignments
-                                            found.</p>
+                                        <div style="text-align:center;padding:40px 20px;color:var(--text-muted);">
+                                            <div style="font-size:48px;margin-bottom:12px;">📝</div>
+                                            <p>No assignments yet. Create your first one!</p>
+                                        </div>
                                     </c:if>
                                 </div>
                             </div>
@@ -1031,15 +1076,42 @@
                 </div>
 
 
+                <!-- Grading Modal -->
+                <div class="modal" id="gradeModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3 id="gradeModalTitle">Grade Submission</h3>
+                            <p id="gradeModalSubtitle">Assign marks for assignment</p>
+                        </div>
+                        <form id="gradeForm" onsubmit="submitGrade(event)">
+                            <input type="hidden" id="gradeSubmissionId">
+                            <div class="form-group">
+                                <label>Student</label>
+                                <input type="text" id="gradeStudentName" disabled
+                                    style="background: rgba(255,255,255,0.05); color: #6b7280;">
+                            </div>
+                            <div class="form-group">
+                                <label>Marks (Max: <span id="gradeMaxPoints">100</span>)</label>
+                                <input type="number" id="gradeValue" required min="0">
+                            </div>
+                            <div class="modal-actions">
+                                <button type="button" class="btn btn-secondary"
+                                    onclick="closeGradeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Publish Grade</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
                 <script>
                     // --- TOAST NOTIFICATIONS ---
                     function showToast(message, type = 'info') {
                         const container = document.getElementById('toastContainer');
                         const toast = document.createElement('div');
-                        toast.className = `toast ${type}`;
+                        toast.className = `toast \${type}`;
 
                         const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-                        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+                        toast.innerHTML = `<span>\${icon}</span> <span>\${message}</span>`;
 
                         container.appendChild(toast);
 
@@ -1102,7 +1174,7 @@
 
                         const type = btn.title.includes('Mic') ? 'Microphone' : 'Camera';
                         const state = btn.classList.contains('off') ? 'muted' : 'active';
-                        showToast(`${type} is now ${state}`, 'info');
+                        showToast(`\${type} is now \${state}`, 'info');
                     }
 
                     // Generate Report
@@ -1146,7 +1218,7 @@
                         const newItem = `
                 <div class="upcoming-item" style="animation: slideIn 0.3s forwards">
                     <div class="upcoming-info">
-                        <h4>${title}</h4>
+                        <h4>\${title}</h4>
                         <p>Web Development • Just Created</p>
                     </div>
                     <div class="upcoming-status">Draft</div>
@@ -1154,7 +1226,7 @@
             `;
                         list.insertAdjacentHTML('afterbegin', newItem);
 
-                        showToast(`Assignment "${title}" created successfully!`, 'success');
+                        showToast(`Assignment "\${title}" created successfully!`, 'success');
                         event.target.reset();
                     }
 
@@ -1175,7 +1247,7 @@
 
                     // Syllabus & Roster
                     function viewSyllabus(title) {
-                        document.getElementById('syllabusTitle').textContent = `Syllabus: ${title}`;
+                        document.getElementById('syllabusTitle').textContent = `Syllabus: \${title}`;
                         document.getElementById('syllabusModal').classList.add('active');
                     }
 
@@ -1187,32 +1259,114 @@
                         document.getElementById('searchInput').value = courseTitle;
                         filterStudents(); // Filter list
                         navigateTo(null, 'students'); // Go to students
-                        showToast(`Filtering students for ${courseTitle}`, 'info');
+                        showToast(`Filtering students for \${courseTitle}`, 'info');
                     }
 
                     // ==========================================
-                    // PROTOTYPE DATA & LOGIC
+                    // REAL DATA & LOGIC
                     // ==========================================
 
                     // --- Data from Backend ---
-                    let students = [
-                        <c:forEach var="e" items="${enrollments}" varStatus="status">
-                            {id: "${e.student.id}", name: "${e.student.name}", email: "${e.student.email}", course: "${e.className}", grade: "B", progress: 75, status: "Active" }<c:if test="${!status.last}">,</c:if>
-                        </c:forEach>
-                    ];
+                    let students = (window.serverData.enrollments || []).map(e => ({
+                        id: e.student.id,
+                        name: e.student.name,
+                        email: e.student.email,
+                        course: e.className,
+                        grade: "N/A", // We'll compute this or show N/A
+                        progress: 0,
+                        status: "Active"
+                    }));
 
-                    const courses = [
-                        <c:forEach var="c" items="${classes}" varStatus="status">
-                            {id: "${status.index + 1}", title: "${c}", students: 0, assignments: 0, rating: 4.8, progress: 0, color: "#3b82f6", image: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)" }<c:if test="${!status.last}">,</c:if>
-                        </c:forEach>
-                    ];
+                    const courses = (window.serverData.classes || []).map((c, idx) => ({
+                        id: idx + 1,
+                        title: c,
+                        students: (window.serverData.enrollments || []).filter(e => e.className === c).length,
+                        assignments: (window.serverData.assignments || []).filter(a => a.className === c).length,
+                        rating: 4.8,
+                        progress: 0,
+                        color: "#3b82f6",
+                        image: "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)"
+                    }));
 
                     let editingId = null;
+
+                    // Load Dashboard Content
+                    function loadDashboard() {
+                        renderActivityFeed();
+                        renderUpcoming();
+                    }
+
+                    function renderActivityFeed() {
+                        const feed = document.querySelector('.activity-feed');
+                        const activities = [];
+
+                        // Add submissions to activities
+                        (window.serverData.recentSubmissions || []).forEach(sub => {
+                            activities.push({
+                                icon: '📝',
+                                text: `\${sub.student.name} submitted "\${sub.assignment.title}"`,
+                                time: sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : 'Recently'
+                            });
+                        });
+
+                        // Add new assignments to activities
+                        (window.serverData.assignments || []).forEach(asgn => {
+                            activities.push({
+                                icon: '📢',
+                                text: `New assignment posted: "\${asgn.title}"`,
+                                time: 'Recently'
+                            });
+                        });
+
+                        if (activities.length === 0) {
+                            feed.innerHTML = '<p style="padding: 20px; color: var(--text-muted);">No recent activity</p>';
+                            return;
+                        }
+
+                        // Sort by time (if we had real timestamps for all, for now just show)
+                        feed.innerHTML = activities.slice(0, 5).map(act => `
+                            <div class="activity-item">
+                                <div class="activity-icon">\${act.icon}</div>
+                                <div class="activity-content">
+                                    <div class="activity-text">\${act.text}</div>
+                                    <div class="activity-time">\${act.time}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+
+                    function renderUpcoming() {
+                        const list = document.querySelector('.upcoming-list');
+                        const assignments = (window.serverData.assignments || [])
+                            .filter(a => new Date(a.deadline) > new Date())
+                            .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+                        if (assignments.length === 0) {
+                            list.innerHTML = '<p style="color: var(--text-muted); padding: 10px;">No upcoming deadlines</p>';
+                            return;
+                        }
+
+                        list.innerHTML = assignments.slice(0, 3).map(asgn => `
+                            <div class="upcoming-item">
+                                <div class="upcoming-info">
+                                    <h4>\${asgn.title}</h4>
+                                    <p>\${asgn.className} • Due \${new Date(asgn.deadline).toLocaleDateString()}</p>
+                                </div>
+                                <div class="upcoming-status">Due</div>
+                            </div>
+                        `).join('');
+                    }
 
                     // Render Students
                     function renderStudents(data = students) {
                         const tbody = document.getElementById('studentsTableBody');
+                        if (!tbody) return;
                         tbody.innerHTML = '';
+
+                        if (data.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px; color: var(--text-muted);">No students found</td></tr>';
+                            return;
+                        }
 
                         data.forEach(student => {
                             const initials = student.name.split(' ').map(n => n[0]).join('');
@@ -1220,28 +1374,28 @@
                                 student.status === 'Pending' ? 'badge-warning' : 'badge-danger';
 
                             const row = `
-                    <tr onclick="openStudentDetail(${student.id})" style="cursor: pointer;">
+                    <tr onclick="openStudentDetail(\${student.id})" style="cursor: pointer;">
                         <td>
                             <div class="student-info">
-                                <div class="student-avatar">${initials}</div>
+                                <div class="student-avatar">\${initials}</div>
                                 <div class="student-details">
-                                    <div class="student-name">${student.name}</div>
-                                    <div class="student-email">${student.email}</div>
+                                    <div class="student-name">\${student.name}</div>
+                                    <div class="student-email">\${student.email}</div>
                                 </div>
                             </div>
                         </td>
-                        <td>${student.course}</td>
-                        <td><span class="badge badge-info">${student.grade}</span></td>
+                        <td>\${student.course}</td>
+                        <td><span class="badge badge-info">\${student.grade}</span></td>
                         <td>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: ${student.progress}%"></div>
+                                <div class="progress-fill" style="width: \${student.progress}%"></div>
                             </div>
                         </td>
-                        <td><span class="badge ${statusClass}">${student.status}</span></td>
+                        <td><span class="badge \${statusClass}">\${student.status}</span></td>
                         <td>
                             <div class="actions">
-                                <button class="action-btn" onclick="event.stopPropagation(); editStudent(${student.id})" title="Edit">✏️</button>
-                                <button class="action-btn" onclick="event.stopPropagation(); deleteStudent(${student.id})" title="Remove">🗑️</button>
+                                <button class="action-btn" onclick="event.stopPropagation(); editStudent(\${student.id})" title="Edit">✏️</button>
+                                <button class="action-btn" onclick="event.stopPropagation(); deleteStudent(\${student.id})" title="Remove">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -1253,26 +1407,25 @@
                     // Render Courses Grid
                     function renderCourses() {
                         const grid = document.getElementById('coursesGrid');
+                        if (!grid) return;
                         grid.innerHTML = '';
+
+                        if (courses.length === 0) {
+                            grid.innerHTML = '<p style="padding: 20px; color: var(--text-muted);">No courses assigned</p>';
+                            return;
+                        }
 
                         courses.forEach(course => {
                             const card = `
                 <div class="course-card">
-                    <div class="course-image">
-                        <div class="course-badge">Online</div>
-                    </div>
                     <div class="course-content">
-                        <div class="course-title">${course.title}</div>
+                        <div class="course-title">\${course.title}</div>
                         <div class="course-meta">
-                            <span>👥 ${course.students} Students</span>
-                            <span>⭐ ${course.rating}</span>
-                        </div>
-                        <div class="course-progress">
-                            <div class="course-progress-bar" style="width: ${course.progress}%"></div>
+                            <span>👥 \${course.students} Students Enrolled</span>
+                            <span>📋 \${course.assignments} Assignments</span>
                         </div>
                         <div class="course-actions">
-                            <button class="btn-outline" onclick="openCourseDetail(${course.id})">View Details</button>
-                            <button class="btn-outline" onclick="viewRoster('${course.title}')">Roster</button>
+                            <button class="btn-outline" onclick="viewRoster('\${course.title}')">View Roster</button>
                         </div>
                     </div>
                 </div>`;
@@ -1404,19 +1557,18 @@
                             openStudentDetail(student.id);
                         } else {
                             // If not in student list (e.g. "Web Dev Class"), show basic info
-                            showToast(`Profile for ${name}: No detailed records found.`, 'info');
+                            showToast(`Profile for \${name}: No detailed records found.`, 'info');
                         }
                     }
 
-                    // Mock Student Detail Navigation
+                    // Student Detail Navigation
                     function openStudentDetail(id) {
-                        const student = students.find(s => s.id === id);
+                        const student = students.find(s => s.id == id);
                         if (student) {
                             document.getElementById('detailName').textContent = student.name;
                             document.getElementById('detailEmail').textContent = student.email;
                             document.getElementById('detailSidebarName').textContent = student.name;
                             document.getElementById('detailSidebarCourse').textContent = student.course;
-                            document.getElementById('detailGradePill').textContent = student.grade;
                             document.getElementById('detailAvatar').textContent = student.name.split(' ').map(n => n[0]).join('');
 
                             // Populate dynamic sections
@@ -1440,109 +1592,51 @@
                         document.querySelectorAll('.tab-content').forEach(content => {
                             content.classList.remove('active');
                         });
-                        document.getElementById(`tab-${tabId}`).classList.add('active');
+                        document.getElementById(`tab-\${tabId}`).classList.add('active');
                     }
 
                     function renderDetailAssignments(student) {
                         const tbody = document.getElementById('detailAssignmentsTable');
-                        tbody.innerHTML = `
-                <tr>
-                    <td>Web Dev Project</td>
-                    <td><span class="badge badge-success">Graded</span></td>
-                    <td>95/100</td>
-                    <td>2 days ago</td>
-                </tr>
-                <tr>
-                    <td>React Basics</td>
-                    <td><span class="badge badge-success">Graded</span></td>
-                    <td>88/100</td>
-                    <td>1 week ago</td>
-                </tr>
-                <tr>
-                    <td>CSS Grid</td>
-                    <td><span class="badge badge-warning">Delayed</span></td>
-                    <td>-</td>
-                    <td>-</td>
-                </tr>
-            `;
+                        const submissions = (window.serverData.recentSubmissions || []).filter(s => s.student.id == student.id);
+
+                        if (submissions.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);">No submissions found for this student.</td></tr>';
+                            return;
+                        }
+
+                        tbody.innerHTML = submissions.map(sub => `
+                            <tr>
+                                <td>\${sub.assignment.title}</td>
+                                <td><span class="badge \${sub.grade != null ? 'badge-success' : 'badge-warning'}">\${sub.grade != null ? 'Graded' : 'Pending'}</span></td>
+                                <td>\${sub.grade != null ? (sub.grade + '/' + sub.assignment.points) : '-'}</td>
+                                <td>\${sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : 'N/A'}</td>
+                            </tr>
+                        `).join('');
                     }
 
                     function renderDetailCourses(student) {
                         const container = document.getElementById('detailCourses');
                         container.innerHTML = `
-                <div class="upcoming-item">
-                    <div class="upcoming-info">
-                        <h4>${student.course}</h4>
-                        <p>Core Curriculum • Active</p>
-                    </div>
-                    <div class="upcoming-status">Enrolled</div>
-                </div>
-                <div class="upcoming-item">
-                    <div class="upcoming-info">
-                        <h4>UI/UX Fundamentals</h4>
-                        <p>Elective • Completed</p>
-                    </div>
-                    <div class="upcoming-status status-closed">Completed</div>
-                </div>
-            `;
+                            <div class="upcoming-item">
+                                <div class="upcoming-info">
+                                    <h4>\${student.course}</h4>
+                                    <p>Core Curriculum • Active</p>
+                                </div>
+                                <div class="upcoming-status">Enrolled</div>
+                            </div>
+                        `;
                     }
 
-                    // Student Data CRUD (Mock)
                     function openAddModal() {
-                        editingId = null;
-                        document.getElementById('modalTitle').textContent = 'Enroll New Student';
-                        document.getElementById('studentForm').reset();
-                        document.getElementById('studentModal').classList.add('active');
+                        showToast('Direct enrollment from teacher dashboard coming soon. Please use Admin panel for student allocations.', 'info');
                     }
 
                     function editStudent(id) {
-                        editingId = id;
-                        const student = students.find(s => s.id === id);
-
-                        document.getElementById('modalTitle').textContent = 'Edit Student Enrollment';
-                        document.getElementById('studentName').value = student.name;
-                        document.getElementById('studentEmail').value = student.email;
-                        document.getElementById('studentCourse').value = student.course;
-                        document.getElementById('studentGrade').value = student.grade;
-                        document.getElementById('studentModal').classList.add('active');
-                    }
-
-                    function saveStudent(event) {
-                        event.preventDefault();
-
-                        const studentData = {
-                            name: document.getElementById('studentName').value,
-                            email: document.getElementById('studentEmail').value,
-                            course: document.getElementById('studentCourse').value,
-                            grade: document.getElementById('studentGrade').value,
-                            progress: Math.floor(Math.random() * 30) + 70,
-                            status: 'Active'
-                        };
-
-                        if (editingId) {
-                            const index = students.findIndex(s => s.id === editingId);
-                            students[index] = { ...students[index], ...studentData };
-                            showToast(`Student ${studentData.name} updated successfully`, 'success');
-                        } else {
-                            studentData.id = students.length + 1;
-                            students.push(studentData);
-                            showToast(`Student ${studentData.name} enrolled`, 'success');
-                        }
-
-                        closeModal();
-                        renderStudents();
+                        showToast('Edit student profile feature coming soon.', 'info');
                     }
 
                     function deleteStudent(id) {
-                        if (confirm('Are you sure you want to remove this student from the course?')) {
-                            students = students.filter(s => s.id !== id);
-                            renderStudents();
-                            showToast('Student removed from course', 'info');
-                        }
-                    }
-
-                    function closeModal() {
-                        document.getElementById('studentModal').classList.remove('active');
+                        showToast('Remove student feature coming soon. Please use Admin panel for student management.', 'info');
                     }
 
                     function exportData() {
@@ -1563,6 +1657,7 @@
                     });
 
                     // Initialize
+                    loadDashboard();
                     renderStudents();
                     renderCourses();
 
@@ -1708,7 +1803,7 @@
                                 audioTrack.enabled = isMicOn;
                                 btn.classList.toggle('active', !isMicOn); // Red if off
                                 btn.innerHTML = isMicOn ? '🎤' : '🔇';
-                                showToast(`Microphone ${isMicOn ? 'on' : 'off'}`, 'info');
+                                showToast(`Microphone \${isMicOn ? 'on' : 'off'}`, 'info');
                             }
                         } else {
                             showToast('Join the call first to use microphone', 'warning');
@@ -1733,7 +1828,7 @@
                                 // If cam is off, maybe show avatar in placeholder? 
                                 // For now, simple opacity toggle.
 
-                                showToast(`Camera ${isCamOn ? 'on' : 'off'}`, 'info');
+                                showToast(`Camera \${isCamOn ? 'on' : 'off'}`, 'info');
                             }
                         } else {
                             // If not in call, maybe this starts the call?
@@ -1748,45 +1843,14 @@
                     function handleFileUpload(input) {
                         const text = document.getElementById('uploadText');
                         if (input.files && input.files[0]) {
-                            text.textContent = `📄 ${input.files[0].name}`;
+                            text.textContent = `📄 \${input.files[0].name}`;
                             text.style.color = '#3b82f6';
                             text.style.fontWeight = '500';
                         }
                     }
 
                     function openCourseDetail(courseId) {
-                        const course = courses.find(c => c.id === courseId);
-                        if (!course) return;
-
-                        document.getElementById('cdTitle').textContent = course.title;
-
-                        // Mock Modules
-                        const modulesContainer = document.getElementById('cdModules');
-                        modulesContainer.innerHTML = `
-                <div class="upcoming-item">
-                    <div class="upcoming-info">
-                        <h4>Module 1: Introduction</h4>
-                        <p>Completed • 4 Lessons</p>
-                    </div>
-                    <div class="upcoming-status badge-success">Done</div>
-                </div>
-                <div class="upcoming-item">
-                    <div class="upcoming-info">
-                        <h4>Module 2: Core Concepts</h4>
-                        <p>In Progress • 2/6 Lessons</p>
-                    </div>
-                    <div class="upcoming-status badge-warning">Active</div>
-                </div>
-                <div class="upcoming-item">
-                    <div class="upcoming-info">
-                        <h4>Module 3: Advanced Topics</h4>
-                        <p>Locked</p>
-                    </div>
-                    <div class="upcoming-status">Locked</div>
-                </div>
-            `;
-
-                        navigateTo(null, 'course-detail');
+                        showToast('Detailed course curriculum management coming soon.', 'info');
                     }
 
                     function openAssignmentDetail(title) {
@@ -1795,28 +1859,70 @@
                         const tbody = document.getElementById('adBody');
                         tbody.innerHTML = '';
 
-                        // Mock Submissions
-                        const submissions = [
-                            { name: 'Emma Johnson', status: 'Submitted', file: 'project_final.zip', grade: '95/100' },
-                            { name: 'Michael Chen', status: 'Grading', file: 'analysis.pdf', grade: '-' },
-                            { name: 'Sarah Williams', status: 'Late', file: 'ui_mockups.fig', grade: '85/100' },
-                        ];
+                        // Real Submissions filtered by assignment title
+                        const submissions = (window.serverData.recentSubmissions || []).filter(sub => sub.assignment.title === title);
 
-                        submissions.forEach(sub => {
-                            const statusClass = sub.status === 'Submitted' ? 'badge-success' : sub.status === 'Late' ? 'badge-danger' : 'badge-warning';
-                            tbody.innerHTML += `
-                    <tr>
-                        <td>\${sub.name}</td>
-                        <td><span class="badge \${statusClass}">\${sub.status}</span></td>
-                        <td><a href="#" style="color: #3b82f6;">\${sub.file}</a></td>
-                        <td>
-                             \${sub.grade === '-' ? '<button class="btn-sm btn-primary">Grade</button>' : sub.grade}
-                        </td>
-                    </tr>
-                `;
-                        });
+                        if (submissions.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:var(--text-muted);">No submissions yet.</td></tr>';
+                        } else {
+                            submissions.forEach(sub => {
+                                const statusClass = sub.grade != null ? 'badge-success' : 'badge-warning';
+                                const statusText = sub.grade != null ? 'Graded' : 'Submitted';
+                                tbody.innerHTML += `
+                                    <tr>
+                                        <td>\${sub.student.name}</td>
+                                        <td><span class="badge \${statusClass}">\${statusText}</span></td>
+                                        <td><a href="\${sub.fileUrl || '#'}" style="color: #3b82f6;">\${sub.fileUrl ? 'View File' : 'Text Content'}</a></td>
+                                        <td>
+                                             \${sub.grade === null ? `< button class="btn-sm btn-primary" onclick = "showGradePopup('\${sub.id}', '\${sub.assignment.points}', '\${sub.student.name}')" > Grade</button > ` : sub.grade + '/' + sub.assignment.points}
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+                        }
 
                         navigateTo(null, 'assignment-detail');
+                    }
+
+                    function showGradePopup(submissionId, maxPoints, studentName) {
+                        document.getElementById('gradeSubmissionId').value = submissionId;
+                        document.getElementById('gradeMaxPoints').textContent = maxPoints;
+                        document.getElementById('gradeStudentName').value = studentName;
+                        document.getElementById('gradeValue').max = maxPoints;
+                        document.getElementById('gradeValue').value = '';
+                        document.getElementById('gradeModal').classList.add('active');
+                    }
+
+                    function closeGradeModal() {
+                        document.getElementById('gradeModal').classList.remove('active');
+                    }
+
+                    function submitGrade(event) {
+                        event.preventDefault();
+                        const submissionId = document.getElementById('gradeSubmissionId').value;
+                        const grade = document.getElementById('gradeValue').value;
+
+                        fetch('${pageContext.request.contextPath}/teacher/grade', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: `submissionId=\${submissionId}&grade=\${grade}`
+                        })
+                            .then(res => res.json())
+                            .then(res => {
+                                if (res.success) {
+                                    showToast(res.message, 'success');
+                                    closeGradeModal();
+                                    // Refresh current detail view
+                                    const currentTitle = document.getElementById('adTitle').textContent;
+                                    openAssignmentDetail(currentTitle);
+                                } else {
+                                    showToast(res.message || 'Failed to publish grade', 'error');
+                                }
+                            })
+                            .catch(err => {
+                                showToast('Error publishing grade', 'error');
+                                console.error(err);
+                            });
                     }
                 </script>
                 <script src="${pageContext.request.contextPath}/js/toast.js"></script>
@@ -1855,7 +1961,7 @@
                                 try {
                                     const data = JSON.parse(event.data);
                                     if (data.type === 'NEW_SUBMISSION') {
-                                        showMessage('success', `New submission from ${data.studentName} for: ${data.assignmentTitle}`);
+                                        showMessage('success', `New submission from \${data.studentName} for: \${data.assignmentTitle}`);
 
                                         // Update stats slightly if requested
                                         // If they are on the assignment page, we could refresh it dynamically

@@ -62,6 +62,16 @@ public class Submission {
     private String fileUrl;
 
     /**
+     * Optional Google Form response URL submitted by the student.
+     * <p>
+     * If the assignment includes a Google Form, students may paste
+     * the link to their filled form here.
+     * </p>
+     */
+    @Column(length = 2048)
+    private String formResponseUrl;
+
+    /**
      * The date and time when the submission was made.
      * <p>
      * Defaults to the current time at creation.
@@ -160,6 +170,20 @@ public class Submission {
      * @param fileUrl the file URL to set
      */
     public void setFileUrl(String fileUrl) { this.fileUrl = fileUrl; }
+
+    /**
+     * Returns the optional Google Form response URL.
+     *
+     * @return the form response URL, or {@code null}
+     */
+    public String getFormResponseUrl() { return formResponseUrl; }
+
+    /**
+     * Sets the optional Google Form response URL.
+     *
+     * @param formResponseUrl the form response URL
+     */
+    public void setFormResponseUrl(String formResponseUrl) { this.formResponseUrl = formResponseUrl; }
 
     /**
      * Returns the date and time when the submission was made.

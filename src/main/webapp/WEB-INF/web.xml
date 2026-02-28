@@ -40,6 +40,7 @@
         <url-pattern>/profile</url-pattern>
         <url-pattern>/submitAssignment</url-pattern>
         <url-pattern>/submissionDetails</url-pattern>
+        <url-pattern>/api/student/*</url-pattern>
     </filter-mapping>
 
     <!-- Role Authorization Filter - checks if user has correct role for the resource -->
@@ -244,6 +245,32 @@
     <servlet-mapping>
         <servlet-name>VerificationServlet</servlet-name>
         <url-pattern>/verify</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SeedData</servlet-name>
+        <servlet-class>org.example.esubmission.controller.SeedDataServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SeedData</servlet-name>
+        <url-pattern>/admin/seed</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AssignmentsApi</servlet-name>
+        <servlet-class>org.example.esubmission.controller.AssignmentsApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AssignmentsApi</servlet-name>
+        <url-pattern>/api/student/assignments</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>AdminApi</servlet-name>
+        <servlet-class>org.example.esubmission.controller.AdminApiServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminApi</servlet-name>
+        <url-pattern>/admin/api/*</url-pattern>
     </servlet-mapping>
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>

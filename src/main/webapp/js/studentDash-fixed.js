@@ -1,189 +1,66 @@
 // Student Dashboard JavaScript - Clean Implementation
 console.log('Student Dashboard JS loading...');
 
-// Application State
+// Application State - Purged of Mock Data
 let appState = {
-    user: {
-        name: 'Alex Johnson',
-        email: 'alex.johnson@university.edu',
-        avatar: 'AJ',
-        role: 'student',
-        id: 'STU001'
-    },
-    stats: {
-        coursesEnrolled: 5,
-        assignmentsPending: 8,
-        completedAssignments: 12,
-        averageGrade: 85.5,
-        studyStreak: 7
-    },
-    courses: [
-        {
-            id: 1,
-            title: 'Web Development Fundamentals',
-            instructor: 'Prof. Sarah Johnson',
-            progress: 75,
-            grade: 'A-',
-            rating: 4.8,
-            avatar: 'WD',
-            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            nextClass: 'Tomorrow, 10:00 AM',
-            modules: ['HTML & CSS Basics', 'JavaScript Fundamentals', 'React Introduction', 'Advanced Concepts'],
-            description: 'Learn modern web development from scratch'
-        },
-        {
-            id: 2,
-            title: 'Data Science Essentials',
-            instructor: 'Dr. Michael Chen',
-            progress: 60,
-            grade: 'B+',
-            rating: 4.5,
-            avatar: 'DS',
-            gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-            nextClass: 'Today, 2:00 PM',
-            modules: ['Python Basics', 'Data Analysis', 'Machine Learning Intro', 'Visualization'],
-            description: 'Master data science fundamentals'
-        },
-        {
-            id: 3,
-            title: 'UI/UX Design Principles',
-            instructor: 'Prof. Emily Davis',
-            progress: 90,
-            grade: 'A',
-            rating: 4.9,
-            avatar: 'UX',
-            gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-            nextClass: 'Friday, 3:00 PM',
-            modules: ['Design Theory', 'User Research', 'Prototyping', 'Design Systems'],
-            description: 'Create beautiful user experiences'
-        }
-    ],
-    assignments: [
-        {
-            id: 1,
-            title: 'React Component Library',
-            course: 'Web Development Fundamentals',
-            courseId: 1,
-            difficulty: 'Medium',
-            points: 100,
-            dueDate: '2024-02-10',
-            status: 'pending',
-            grade: null,
-            description: 'Create a reusable component library using React',
-            requirements: ['Use TypeScript', 'Include documentation', 'Add unit tests', 'Follow accessibility guidelines']
-        },
-        {
-            id: 2,
-            title: 'Data Analysis Project',
-            course: 'Data Science Essentials',
-            courseId: 2,
-            difficulty: 'Hard',
-            points: 150,
-            dueDate: '2024-02-08',
-            status: 'submitted',
-            grade: 'A-',
-            description: 'Analyze real-world dataset and present findings',
-            requirements: ['Clean data', 'Create visualizations', 'Write report', 'Present findings']
-        },
-        {
-            id: 3,
-            title: 'Design System Creation',
-            course: 'UI/UX Design Principles',
-            courseId: 3,
-            difficulty: 'Medium',
-            points: 80,
-            dueDate: '2024-02-12',
-            status: 'graded',
-            grade: 'A+',
-            description: 'Design a comprehensive design system',
-            requirements: ['Color palette', 'Typography', 'Components', 'Guidelines']
-        }
-    ],
-    liveClasses: [
-        {
-            id: 1,
-            title: 'React Hooks Deep Dive',
-            instructor: 'Prof. Sarah Johnson',
-            time: 'Now',
-            status: 'live',
-            participants: 45,
-            topic: 'Advanced React Hooks patterns',
-            duration: '2 hours',
-            reminderSet: false
-        },
-        {
-            id: 2,
-            title: 'Data Science Workshop',
-            instructor: 'Dr. Michael Chen',
-            time: 'Today, 2:00 PM',
-            status: 'upcoming',
-            participants: 0,
-            topic: 'Introduction to Pandas',
-            duration: '1.5 hours',
-            reminderSet: false
-        }
-    ],
-    messages: [
-        {
-            contactName: 'Prof. Sarah Johnson',
-            contactAvatar: 'SJ',
-            lastMessage: 'Great work on the React project!',
-            time: '2 hours ago',
-            unread: 2,
-            messages: [
-                { type: 'received', text: 'Great work on the React project!', time: '2 hours ago' },
-                { type: 'received', text: 'Your component library is well-structured.', time: '2 hours ago' },
-                { type: 'sent', text: 'Thank you! I learned a lot from this project.', time: '1 hour ago' }
-            ]
-        },
-        {
-            contactName: 'Dr. Michael Chen',
-            contactAvatar: 'MC',
-            lastMessage: 'Please submit your analysis by Friday',
-            time: '1 day ago',
-            unread: 1,
-            messages: [
-                { type: 'received', text: 'Please submit your analysis by Friday', time: '1 day ago' }
-            ]
-        }
-    ],
-    achievements: [
-        {
-            id: 1,
-            title: 'Quick Learner',
-            description: 'Complete 5 assignments in the first week',
-            category: 'Academic',
-            icon: '🚀',
-            unlocked: true,
-            unlockedDate: '2024-01-15',
-            progress: 100,
-            currentCount: 5,
-            targetCount: 5,
-            reward: '50 XP points'
-        },
-        {
-            id: 2,
-            title: 'Code Master',
-            description: 'Submit 10 bug-free assignments',
-            category: 'Technical',
-            icon: '💻',
-            unlocked: false,
-            unlockedDate: null,
-            progress: 70,
-            currentCount: 7,
-            targetCount: 10,
-            reward: '100 XP points'
-        }
-    ]
+    user: {},
+    stats: {},
+    courses: [],
+    assignments: [],
+    liveClasses: [], // Still mock-only for now
+    messages: [],    // Still mock-only for now
+    achievements: []  // Still mock-only for now
 };
 
-// Merge real data if provided by JSP
-if (window.realData) {
-    console.log('Merging backend data into appState...');
-    appState = { ...appState, ...window.realData };
-    // Also update nested objects
-    if (window.realData.user) appState.user = { ...appState.user, ...window.realData.user };
-    if (window.realData.stats) appState.stats = { ...appState.stats, ...window.realData.stats };
+// Merge real data provided by JSP
+if (window.serverData) {
+    console.log('Initializing with backend data...');
+    appState.user = {
+        name: window.serverData.currentUser?.name || 'User',
+        email: window.serverData.currentUser?.email || '',
+        avatar: (window.serverData.currentUser?.name || 'U').substring(0, 2).toUpperCase(),
+        role: 'student',
+        id: 'STU' + (window.serverData.currentUser?.id || '000')
+    };
+
+    appState.stats = {
+        coursesEnrolled: window.serverData.stats?.totalCourses || 0,
+        assignmentsPending: window.serverData.stats?.pendingAssignments || 0,
+        completedAssignments: window.serverData.stats?.submittedAssignments || 0,
+        averageGrade: 0,
+        studyStreak: 0
+    };
+
+    appState.courses = (window.serverData.enrolledClasses || []).map((c, idx) => ({
+        id: c.id,
+        title: c.className,
+        instructor: 'Faculty', // Placeholder until teacher joined
+        progress: 0,
+        grade: 'N/A',
+        rating: 5.0,
+        avatar: c.className.substring(0, 2).toUpperCase(),
+        gradient: idx % 2 === 0 ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        nextClass: 'Consult Schedule',
+        modules: [],
+        description: 'Enrolled Course'
+    }));
+
+    appState.assignments = (window.serverData.assignments || []).map(a => {
+        const submission = (window.serverData.recentSubmissions || []).find(s => s.assignment.id === a.id);
+        return {
+            id: a.id,
+            title: a.title,
+            course: a.className,
+            courseId: 0,
+            difficulty: 'Medium',
+            points: a.points || 100,
+            dueDate: a.deadline,
+            status: submission ? (submission.grade ? 'graded' : 'submitted') : 'pending',
+            grade: submission?.grade,
+            description: a.description,
+            requirements: ['Submit via Google Form']
+        };
+    });
 }
 
 // Navigation Function
@@ -284,12 +161,23 @@ function updateStatCard(id, value) {
 }
 
 function loadActivityFeed() {
-    const activities = [
-        { type: 'assignment', text: 'Submitted React Component Library', time: '2 hours ago', icon: '📝' },
-        { type: 'grade', text: 'Database Schema graded: A', time: '5 hours ago', icon: '📊' },
-        { type: 'message', text: 'New message from Prof. Sarah Johnson', time: '1 day ago', icon: '💬' },
-        { type: 'achievement', text: 'Earned Quick Learner badge', time: '2 days ago', icon: '🏆' }
-    ];
+    const submissions = window.serverData.recentSubmissions || [];
+    const activities = submissions.map(sub => ({
+        type: 'assignment',
+        text: `Submitted ${sub.assignment.title}`,
+        time: sub.submittedAt ? new Date(sub.submittedAt).toLocaleDateString() : 'Recently',
+        icon: '📝'
+    }));
+
+    // If no submissions, show a welcome message
+    if (activities.length === 0) {
+        activities.push({
+            type: 'info',
+            text: 'Welcome to Igishyitsi! Enroll in classes to get started.',
+            time: 'Just now',
+            icon: '👋'
+        });
+    }
 
     const activityFeed = document.querySelector('.activity-feed');
     if (activityFeed) {

@@ -19,6 +19,18 @@
             </head>
 
             <body>
+                <script id="server-data" type="application/json">
+                    ${realData != null && realData != '' ? realData : "{}"}
+                </script>
+                <script>
+                    try {
+                        window.serverData = JSON.parse(document.getElementById('server-data').textContent);
+                    } catch (e) {
+                        window.serverData = {};
+                        console.error("Failed to parse serverData", e);
+                    }
+                    console.log("Student Server Data Loaded:", window.serverData);
+                </script>
                 <!-- Toast Container -->
                 <div id="toastContainer" class="toast-container"></div>
 
@@ -472,10 +484,10 @@
                         <header class="header">
                             <div class="header-title">
                                 <h2>Assignments</h2>
-                                <p class="header-subtitle">Manage and track your assignment progress</p>
+                                <p class="header-subtitle">View, open, and submit your assignments</p>
                             </div>
                             <div class="header-actions">
-                                <select id="assignmentFilter" onchange="filterAssignments()">
+                                <select id="assignmentFilter" onchange="filterStudentAssignments(this.value)">
                                     <option value="all">All Assignments</option>
                                     <option value="pending">Pending</option>
                                     <option value="submitted">Submitted</option>
@@ -484,8 +496,202 @@
                             </div>
                         </header>
 
-                        <div class="assignments-container" id="assignmentsContainer">
-                            <!-- Assignments will be populated here -->
+                        <!-- Server-rendered assignment cards -->
+                        <div id="assignmentCards" style="display:flex;flex-direction:column;gap:20px;padding:8px 0;">
+                            <c:choose>
+                                <c:when test="${empty assignments}">
+                                    <div style="text-align:center;padding:60px 20px;color:var(--text-muted);">
+                                        <div style="font-size:56px;margin-bottom:16px;">📭</div>
+                                        <h3 style="color:white;margin-bottom:8px;">No Assignments Yet</h3>
+                                        <p>Your teacher hasn't posted any assignments for your class yet. Check back
+                                            soon!</p>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <c:forEach var="asgn" items="${assignments}" varStatus="loop">
+                                        <%-- Check if student has submitted this assignment --%>
+                                            <c:set var="mySubmission" value="${null}" />
+                                            <c:forEach var="sub" items="${recentSubmissions}">
+                                                <c:if test="${sub.assignment.id == asgn.id}">
+                                                    <c:set var="mySubmission" value="${sub}" />
+                                                </c:if>
+                                            </c:forEach>
+
+                                            <c:set var="cardStatus"
+                                                value="${mySubmission != null ? (mySubmission.grade != null ? 'graded' : 'submitted') : 'pending'}" />
+
+                                            <div class="assignment-card-full neumorphic" data-status="${cardStatus}"
+                                                style="border-radius:16px;padding:24px;background:var(--glass-bg);border:1px solid var(--glass-border);">
+
+                                                <!-- Card Header -->
+                                                <div
+                                                    style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+                                                    <div>
+                                                        <h3 style="margin:0 0 4px 0;font-size:18px;color:white;">
+                                                            ${asgn.title}</h3>
+                                                        <p style="margin:0;font-size:13px;color:var(--text-muted);">
+                                                            📚 ${asgn.className} &nbsp;•&nbsp;
+                                                            🗓 Due <strong
+                                                                style="color:white;">${asgn.formattedDeadline}</strong>
+                                                            &nbsp;•&nbsp;
+                                                            ⭐ <strong style="color:white;">${asgn.points} pts</strong>
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                                        <c:choose>
+                                                            <c:when test="${cardStatus == 'graded'}">
+                                                                <span
+                                                                    style="background:#065f46;color:#6ee7b7;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">
+                                                                    ✅ Graded — ${mySubmission.grade}/100
+                                                                </span>
+                                                            </c:when>
+                                                            <c:when test="${cardStatus == 'submitted'}">
+                                                                <span
+                                                                    style="background:#1e3a5f;color:#93c5fd;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">
+                                                                    📤 Submitted
+                                                                </span>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <c:choose>
+                                                                    <c:when test="${asgn.status == 'Closed'}">
+                                                                        <span
+                                                                            style="background:#3b1c1c;color:#fca5a5;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">
+                                                                            ❌ Closed
+                                                                        </span>
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <span
+                                                                            style="background:#431407;color:#fdba74;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;">
+                                                                            ⏰ Pending
+                                                                        </span>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Description -->
+                                                <p
+                                                    style="color:var(--text-secondary);font-size:14px;line-height:1.6;margin-bottom:16px;">
+                                                    <c:out value="${asgn.description}" />
+                                                </p>
+
+                                                <!-- Optional Google Form link -->
+                                                <c:if test="${not empty asgn.googleFormUrl}">
+                                                    <a href="${asgn.googleFormUrl}" target="_blank"
+                                                        style="display:inline-flex;align-items:center;gap:6px;background:rgba(56,189,248,0.1);color:#38bdf8;border:1px solid rgba(56,189,248,0.3);padding:8px 16px;border-radius:8px;text-decoration:none;font-size:13px;margin-bottom:16px;">
+                                                        🔗 Open Google Form (extra resource)
+                                                    </a>
+                                                </c:if>
+
+                                                <!-- If GRADED: show grade & feedback -->
+                                                <c:if test="${cardStatus == 'graded'}">
+                                                    <div
+                                                        style="background:rgba(6,95,70,0.2);border:1px solid rgba(110,231,183,0.3);border-radius:12px;padding:16px;margin-top:8px;">
+                                                        <p style="color:#6ee7b7;font-weight:600;margin:0 0 6px 0;">
+                                                            Grade: ${mySubmission.grade}/100</p>
+                                                        <c:if test="${not empty mySubmission.feedback}">
+                                                            <p
+                                                                style="color:var(--text-secondary);font-size:14px;margin:0;">
+                                                                💬 <em>
+                                                                    <c:out value="${mySubmission.feedback}" />
+                                                                </em>
+                                                            </p>
+                                                        </c:if>
+                                                    </div>
+                                                </c:if>
+
+                                                <!-- If SUBMITTED: show submission info -->
+                                                <c:if test="${cardStatus == 'submitted'}">
+                                                    <div
+                                                        style="background:rgba(30,58,95,0.3);border:1px solid rgba(147,197,253,0.2);border-radius:12px;padding:16px;margin-top:8px;">
+                                                        <p style="color:#93c5fd;font-weight:600;margin:0 0 4px 0;">
+                                                            ✅ Submitted — awaiting grade
+                                                        </p>
+                                                        <p style="color:var(--text-muted);font-size:12px;margin:0;">
+                                                            <fmt:formatDate value="${mySubmission.submittedAt}"
+                                                                pattern="MMM dd, yyyy HH:mm" />
+                                                        </p>
+                                                    </div>
+                                                </c:if>
+
+                                                <!-- If PENDING and assignment is still open: show submission form -->
+                                                <c:if test="${cardStatus == 'pending' && asgn.status != 'Closed'}">
+                                                    <div id="submitSection_${asgn.id}" style="margin-top:4px;">
+                                                        <button type="button" onclick="toggleSubmitForm('${asgn.id}')"
+                                                            style="background:var(--primary-gradient);color:white;border:none;padding:10px 24px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">
+                                                            📤 Submit Assignment
+                                                        </button>
+
+                                                        <div id="submitForm_${asgn.id}"
+                                                            style="display:none;margin-top:16px;background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);border-radius:12px;padding:20px;">
+                                                            <form
+                                                                action="${pageContext.request.contextPath}/submitAssignment"
+                                                                method="POST" enctype="multipart/form-data">
+                                                                <input type="hidden" name="assignmentId"
+                                                                    value="${asgn.id}">
+
+                                                                <div class="form-group">
+                                                                    <label
+                                                                        style="font-size:14px;font-weight:600;color:white;">Your
+                                                                        Answer / Notes</label>
+                                                                    <textarea name="content" rows="4"
+                                                                        style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:8px;color:white;padding:10px;font-size:14px;resize:vertical;margin-top:6px;"
+                                                                        placeholder="Write your answer, notes, or any comments here..."></textarea>
+                                                                </div>
+
+                                                                <div class="form-group">
+                                                                    <label
+                                                                        style="font-size:14px;font-weight:600;color:white;">Upload
+                                                                        File <span
+                                                                            style="font-weight:400;color:var(--text-muted);">(optional)</span></label>
+                                                                    <div style="margin-top:6px;border:2px dashed var(--glass-border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;"
+                                                                        onclick="document.getElementById('file_${asgn.id}').click()">
+                                                                        <input type="file" id="file_${asgn.id}"
+                                                                            name="file" style="display:none;"
+                                                                            onchange="document.getElementById('fileName_${asgn.id}').innerText = this.files[0]?.name || 'No file chosen'">
+                                                                        <p id="fileName_${asgn.id}"
+                                                                            style="color:var(--text-muted);margin:0;font-size:13px;">
+                                                                            📎 Click to attach a file (PDF, DOCX, ZIP,
+                                                                            image...)
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <c:if test="${not empty asgn.googleFormUrl}">
+                                                                    <div class="form-group">
+                                                                        <label
+                                                                            style="font-size:14px;font-weight:600;color:#38bdf8;">
+                                                                            Google Form Response URL <span
+                                                                                style="font-weight:400;color:var(--text-muted);">(optional)</span>
+                                                                        </label>
+                                                                        <input type="url" name="formResponseUrl"
+                                                                            style="width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--glass-border);border-radius:8px;color:white;padding:10px;font-size:14px;margin-top:6px;"
+                                                                            placeholder="Paste your form response link (if provided by teacher)">
+                                                                    </div>
+                                                                </c:if>
+
+                                                                <div style="display:flex;gap:10px;margin-top:4px;">
+                                                                    <button type="submit"
+                                                                        style="flex:1;background:var(--primary-gradient);color:white;border:none;padding:11px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">
+                                                                        ✅ Submit Now
+                                                                    </button>
+                                                                    <button type="button"
+                                                                        onclick="toggleSubmitForm('${asgn.id}')"
+                                                                        style="background:rgba(255,255,255,0.07);color:var(--text-secondary);border:1px solid var(--glass-border);padding:11px 20px;border-radius:10px;cursor:pointer;font-size:14px;">
+                                                                        Cancel
+                                                                    </button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </c:if>
+                                            </div>
+                                    </c:forEach>
+                                </c:otherwise>
+                            </c:choose>
                         </div>
                     </div>
 
@@ -701,63 +907,47 @@
                 </div>
 
                 <script src="${pageContext.request.contextPath}/js/toast.js"></script>
-                <script>
-                    window.realData = {
-                        user: {
-                            name: '${user.name}',
-                            email: '${user.email}',
-                            id: 'ST${user.id}'
-                        },
-                        stats: {
-                            coursesEnrolled: parseInt('${empty stats.totalCourses ? 0 : stats.totalCourses}'),
-                            assignmentsPending: parseInt('${empty stats.pendingAssignments ? 0 : stats.pendingAssignments}'),
-                            completedAssignments: parseInt('${empty stats.submittedAssignments ? 0 : stats.submittedAssignments}'),
-                            averageGrade: 92.0
-                        },
-                        courses: [
-                            <c:forEach var="sc" items="${enrolledClasses}" varStatus="status">
-                                {
-                                    id: '${sc.id}',
-                                title: '${sc.className}',
-                                instructor: 'Prof. ${sc.teacher.name}',
-                                progress: 100,
-                                grade: 'A-',
-                                rating: 4.9,
-                                avatar: '${sc.className.substring(0, 2).toUpperCase()}',
-                                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                                nextClass: 'ActiveSession',
-                                modules: ['Introduction', 'Core Concepts', 'Advanced Topics'],
-                                description: 'Enrolled in ${sc.className}'
-                                }<c:if test="${!status.last}">,</c:if>
-                            </c:forEach>
-                        ],
-                        assignments: [
-                            <c:forEach var="asgn" items="${assignments}" varStatus="status">
-                                {
-                                    id: '${asgn.id}',
-                                title: '${asgn.title}',
-                                course: '${asgn.className}',
-                                difficulty: 'General',
-                                points: 100,
-                                dueDate: '<fmt:formatDate value="${asgn.deadline}" pattern="yyyy-MM-dd" />',
-                                status: 'pending',
-                                grade: null,
-                                description: '${asgn.description}',
-                                requirements: ['Submit on time', 'Follow guidelines']
-                                }<c:if test="${!status.last}">,</c:if>
-                            </c:forEach>
-                        ]
-                    };
-                </script>
                 <script src="${pageContext.request.contextPath}/js/studentDash-fixed.js"></script>
                 <script>
                     const errorMsg = "${error}";
                     if (errorMsg && errorMsg.trim() !== "" && errorMsg !== "null") {
                         showMessage('error', errorMsg);
                     }
+                    // Session flash message (set after successful submission redirect)
+                    const flashMsg = "${sessionScope.message}";
+                    if (flashMsg && flashMsg.trim() !== "" && flashMsg !== "null") {
+                        showMessage('success', flashMsg);
+                        <% session.removeAttribute("message"); %>
+                    }
                     const successMsg = "${success}";
                     if (successMsg && successMsg.trim() !== "" && successMsg !== "null") {
                         showMessage('success', successMsg);
+                    }
+
+                    /**
+                     * Toggle the inline submission form for a given assignment.
+                     * @param {string} assignmentId
+                     */
+                    function toggleSubmitForm(assignmentId) {
+                        const form = document.getElementById('submitForm_' + assignmentId);
+                        if (!form) return;
+                        form.style.display = form.style.display === 'none' ? 'block' : 'none';
+                    }
+
+                    /**
+                     * Filter server-rendered assignment cards by status.
+                     * @param {string} status one of: all, pending, submitted, graded
+                     */
+                    function filterStudentAssignments(status) {
+                        const cards = document.querySelectorAll('#assignmentCards .assignment-card-full');
+                        cards.forEach(function (card) {
+                            const cardStatus = card.getAttribute('data-status');
+                            if (status === 'all' || cardStatus === status) {
+                                card.style.display = '';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
                     }
                 </script>
                 <script>

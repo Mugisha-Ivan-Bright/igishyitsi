@@ -74,6 +74,25 @@ public class Assignment {
     private LocalDateTime deadline;
 
     /**
+     * Optional Google Form URL for this assignment.
+     * <p>
+     * Teachers may optionally provide a Google Forms link as an extra resource.
+     * Submissions still happen through the standard text + file upload mechanism.
+     * </p>
+     */
+    @Column(length = 2048)
+    private String googleFormUrl;
+
+    /**
+     * Maximum points achievable for this assignment.
+     * <p>
+     * Defaults to 100.
+     * </p>
+     */
+    @Column(nullable = false)
+    private Integer points = 100;
+
+    /**
      * Timestamp when the assignment was created.
      * <p>
      * Defaults to the current date and time when the object is created.
@@ -182,6 +201,34 @@ public class Assignment {
      * @param createdAt the timestamp to set
      */
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    /**
+     * Returns the optional Google Form URL for this assignment.
+     *
+     * @return the Google Form URL, or {@code null} if not set
+     */
+    public String getGoogleFormUrl() { return googleFormUrl; }
+
+    /**
+     * Sets the optional Google Form URL for this assignment.
+     *
+     * @param googleFormUrl the Google Form URL to set
+     */
+    public void setGoogleFormUrl(String googleFormUrl) { this.googleFormUrl = googleFormUrl; }
+
+    /**
+     * Returns the maximum points for this assignment.
+     *
+     * @return the points value
+     */
+    public Integer getPoints() { return points; }
+
+    /**
+     * Sets the maximum points for this assignment.
+     *
+     * @param points the points value
+     */
+    public void setPoints(Integer points) { this.points = points; }
 
     /**
      * Returns a human-readable string representation of the deadline.

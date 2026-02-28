@@ -98,4 +98,15 @@ public class AssignmentWebSocket {
             broadcastToUser(student.getId(), message);
         }
     }
+
+    /**
+     * Broadcasts a text message to all connected users.
+     *
+     * @param message the JSON or string message
+     */
+    public static void broadcastToAll(String message) {
+        for (Long userId : sessions.keySet()) {
+            broadcastToUser(userId, message);
+        }
+    }
 }
