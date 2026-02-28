@@ -5,7 +5,7 @@ A premium dark-themed e-submission system built with Java, JSP, and Hibernate.
 ## Features
 - **Teacher Dashboard**: Manage assignments, view student progress, and monitor submissions.
 - **Student Dashboard**: Track courses, submit assignments, and view grades.
-- - **Admin Dashboard**: Track pretty much everything and acts as bridge between students and teachers and oversees the system security.
+- **Admin Dashboard**: Track pretty much everything and acts as bridge between students and teachers and oversees the system security.
 - **Security**: 2FA via Email, CAPTCHA on all entry points, and input sanitization.
 - **Password Recovery**: Secure "Forgot Password" flow with email integration.
 - **Premium UI**: Modern dark-mode aesthetic with smooth animations and toasters.
