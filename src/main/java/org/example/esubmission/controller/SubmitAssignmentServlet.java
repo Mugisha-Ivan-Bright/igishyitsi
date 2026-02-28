@@ -180,6 +180,13 @@ public class SubmitAssignmentServlet extends HttpServlet {
 
             submissionDAO.save(submission);
 
+            // Broadcast new submission to the teacher
+            String jsonMessage = String.format("{\"type\":\"NEW_SUBMISSION\", \"studentName\":\"%s\", \"assignmentTitle\":\"%s\"}",
+                student.getName().replace("\"", "\\\""),
+                assignment.getTitle().replace("\"", "\\\"")
+            );
+            org.example.esubmission.websocket.AssignmentWebSocket.broadcastToUser(assignment.getTeacher().getId(), jsonMessage);
+
             // Redirect to dashboard with success message
             session.setAttribute("message", "Assignment submitted successfully!");
             response.sendRedirect(request.getContextPath() + "/studentDash");

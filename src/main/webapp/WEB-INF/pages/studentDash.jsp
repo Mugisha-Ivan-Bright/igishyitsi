@@ -709,32 +709,32 @@
                             id: 'ST${user.id}'
                         },
                         stats: {
-                            coursesEnrolled: ${ stats.totalCourses },
-                    assignmentsPending: ${ stats.pendingAssignments },
-                    completedAssignments: ${ stats.submittedAssignments },
-                    averageGrade: 92.0
+                            coursesEnrolled: parseInt('${empty stats.totalCourses ? 0 : stats.totalCourses}'),
+                            assignmentsPending: parseInt('${empty stats.pendingAssignments ? 0 : stats.pendingAssignments}'),
+                            completedAssignments: parseInt('${empty stats.submittedAssignments ? 0 : stats.submittedAssignments}'),
+                            averageGrade: 92.0
                         },
-                    courses: [
-                        <c:forEach var="sc" items="${enrolledClasses}" varStatus="status">
-                            {
-                                id: ${sc.id},
-                            title: '${sc.className}',
-                            instructor: 'Prof. ${sc.teacher.name}',
-                            progress: 100,
-                            grade: 'A-',
-                            rating: 4.9,
-                            avatar: '${sc.className.substring(0, 2).toUpperCase()}',
-                            gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            nextClass: 'ActiveSession',
-                            modules: ['Introduction', 'Core Concepts', 'Advanced Topics'],
-                            description: 'Enrolled in ${sc.className}'
-                                }${not status.last ? ',' : ''}
-                        </c:forEach>
-                    ],
+                        courses: [
+                            <c:forEach var="sc" items="${enrolledClasses}" varStatus="status">
+                                {
+                                    id: '${sc.id}',
+                                title: '${sc.className}',
+                                instructor: 'Prof. ${sc.teacher.name}',
+                                progress: 100,
+                                grade: 'A-',
+                                rating: 4.9,
+                                avatar: '${sc.className.substring(0, 2).toUpperCase()}',
+                                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                nextClass: 'ActiveSession',
+                                modules: ['Introduction', 'Core Concepts', 'Advanced Topics'],
+                                description: 'Enrolled in ${sc.className}'
+                                }<c:if test="${!status.last}">,</c:if>
+                            </c:forEach>
+                        ],
                         assignments: [
                             <c:forEach var="asgn" items="${assignments}" varStatus="status">
                                 {
-                                    id: ${asgn.id},
+                                    id: '${asgn.id}',
                                 title: '${asgn.title}',
                                 course: '${asgn.className}',
                                 difficulty: 'General',
@@ -744,7 +744,7 @@
                                 grade: null,
                                 description: '${asgn.description}',
                                 requirements: ['Submit on time', 'Follow guidelines']
-                                }${not status.last ? ',' : ''}
+                                }<c:if test="${!status.last}">,</c:if>
                             </c:forEach>
                         ]
                     };
@@ -759,6 +759,78 @@
                     if (successMsg && successMsg.trim() !== "" && successMsg !== "null") {
                         showMessage('success', successMsg);
                     }
+                </script>
+                <script>
+                    // Real-Time WebSocket Connection
+                    (function () {
+                        let ws;
+                        function connectWebSocket() {
+                            const userId = '${user.id}';
+                            if (!userId) return;
+
+                            const host = window.location.host;
+                            const ctx = '${pageContext.request.contextPath}';
+                            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                            const wsUrl = protocol + '//' + host + ctx + '/ws/assignments/' + userId;
+
+                            ws = new WebSocket(wsUrl);
+
+                            ws.onopen = function () {
+                                console.log("Connected to real-time notification service");
+                            };
+
+                            ws.onmessage = function (event) {
+                                try {
+                                    const data = JSON.parse(event.data);
+                                    if (data.type === 'NEW_ASSIGNMENT') {
+                                        showMessage('info', `New Assignment in ${data.course}: ${data.title}`);
+
+                                        // Update stats
+                                        const pendingBadge = document.querySelector('.header-subtitle');
+                                        if (pendingBadge && pendingBadge.innerText.includes('assignments due soon')) {
+                                            const currentVal = parseInt(pendingBadge.innerText.match(/\d+/)[0]);
+                                            pendingBadge.innerText = `You have ${currentVal + 1} assignments due soon`;
+                                        }
+
+                                        // Re-run filter logic to show incoming assignment broadly
+                                        if (typeof appState !== 'undefined' && appState.assignments) {
+                                            appState.assignments.unshift({
+                                                id: data.id,
+                                                title: data.title,
+                                                course: data.course,
+                                                difficulty: 'General',
+                                                points: 100,
+                                                dueDate: data.dueDate,
+                                                status: 'pending',
+                                                grade: null,
+                                                description: data.description,
+                                                requirements: []
+                                            });
+
+                                            if (appState.stats) {
+                                                appState.stats.assignmentsPending = (appState.stats.assignmentsPending || 0) + 1;
+                                            }
+
+                                            if (document.getElementById('assignments') && document.getElementById('assignments').classList.contains('active')) {
+                                                const filterVal = document.getElementById('assignmentFilter') ? document.getElementById('assignmentFilter').value : 'all';
+                                                if (typeof loadAssignments === 'function') loadAssignments(filterVal);
+                                            } else if (document.getElementById('dashboard') && document.getElementById('dashboard').classList.contains('active')) {
+                                                if (typeof loadDashboard === 'function') loadDashboard();
+                                            }
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.error("Error parsing websocket message", e);
+                                }
+                            };
+
+                            ws.onclose = function () {
+                                setTimeout(connectWebSocket, 5000);
+                            };
+                        }
+
+                        document.addEventListener("DOMContentLoaded", connectWebSocket);
+                    })();
                 </script>
             </body>
 

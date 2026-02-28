@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" language="java" %>
-    <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-        <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+    <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+        <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
             <!DOCTYPE html>
             <html lang="en">
 
@@ -17,7 +17,7 @@
             </head>
 
             <body>
-                <!-- Toast Container -->
+                <!-- Toast Container -->d
                 <div id="toastContainer" class="toast-container"></div>
 
                 <!-- Hamburger Menu -->
@@ -1831,6 +1831,48 @@
                             showMessage('success', successMsg);
                         }
                     });
+                </script>
+                <script>
+                    // Real-Time WebSocket Connection
+                    (function () {
+                        let ws;
+                        function connectWebSocket() {
+                            const userId = '${teacher.id}';
+                            if (!userId) return;
+
+                            const host = window.location.host;
+                            const ctx = '${pageContext.request.contextPath}';
+                            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                            const wsUrl = protocol + '//' + host + ctx + '/ws/assignments/' + userId;
+
+                            ws = new WebSocket(wsUrl);
+
+                            ws.onopen = function () {
+                                console.log("Connected to real-time notification service (Teacher)");
+                            };
+
+                            ws.onmessage = function (event) {
+                                try {
+                                    const data = JSON.parse(event.data);
+                                    if (data.type === 'NEW_SUBMISSION') {
+                                        showMessage('success', `New submission from ${data.studentName} for: ${data.assignmentTitle}`);
+
+                                        // Update stats slightly if requested
+                                        // If they are on the assignment page, we could refresh it dynamically
+                                        // In a real scenario you would update the DOM elements for that specific assignment's submissions count
+                                    }
+                                } catch (e) {
+                                    console.error("Error parsing websocket message", e);
+                                }
+                            };
+
+                            ws.onclose = function () {
+                                setTimeout(connectWebSocket, 5000);
+                            };
+                        }
+
+                        document.addEventListener("DOMContentLoaded", connectWebSocket);
+                    })();
                 </script>
             </body>
 

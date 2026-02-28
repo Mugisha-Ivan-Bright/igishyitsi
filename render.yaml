@@ -11,11 +11,11 @@ services:
         fromDatabase:
           name: furnit-db
           property: connectionString
-      - key: SMTP_USER
+      - key: smtp.user
         sync: false
-      - key: SMTP_PASS
+      - key: smtp.pass
         sync: false
-      - key: SECRET_KEY
+      - key: jwt.secret
         sync: false
       - key: HIBERNATE_DIALECT
         value: org.hibernate.dialect.PostgreSQLDialect

@@ -208,4 +208,17 @@ public class Assignment {
         if (createdAt == null) return "";
         return createdAt.format(java.time.format.DateTimeFormatter.ofPattern("MMM dd, yyyy"));
     }
+
+    /**
+     * Returns the status of the assignment.
+     * <p>
+     * Returns "Closed" if the deadline has passed, otherwise "Active".
+     * </p>
+     *
+     * @return the status string ("Active" or "Closed")
+     */
+    public String getStatus() {
+        if (deadline == null) return "Active";
+        return deadline.isBefore(java.time.LocalDateTime.now()) ? "Closed" : "Active";
+    }
 }

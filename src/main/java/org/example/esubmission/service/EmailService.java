@@ -3,6 +3,8 @@ package org.example.esubmission.service;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import org.example.esubmission.util.ConfigUtil;
+
 import java.util.Properties;
 
 /**

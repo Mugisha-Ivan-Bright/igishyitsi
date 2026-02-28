@@ -54,7 +54,19 @@ public class AssignmentService {
         assignment.setDescription(description);
         assignment.setClassName(className);
         assignment.setDeadline(deadline);
-        return assignmentDAO.save(assignment);
+        Assignment savedAssignment = assignmentDAO.save(assignment);
+        
+        // Broadcast new assignment to the class using JSON string
+        String jsonMessage = String.format("{\"type\":\"NEW_ASSIGNMENT\", \"id\":%d, \"title\":\"%s\", \"description\":\"%s\", \"course\":\"%s\", \"dueDate\":\"%s\"}", 
+            savedAssignment.getId(),
+            title.replace("\"", "\\\""), 
+            description.replace("\"", "\\\"").replace("\n", "\\n").replace("\r", "\\r"),
+            className.replace("\"", "\\\""), 
+            deadline.toString()
+        );
+        org.example.esubmission.websocket.AssignmentWebSocket.broadcastToClass(teacher.getId(), className, jsonMessage);
+        
+        return savedAssignment;
     }
 
     /**
